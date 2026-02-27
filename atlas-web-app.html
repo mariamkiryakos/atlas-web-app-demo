@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Atlas Web App</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 40px;
+      background-color: #f7f7f9;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 24px 32px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .mode-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 8px;
+    }
+    .mode-editor {
+      background-color: #e6f4ea;
+      color: #137333;
+    }
+    .mode-viewer {
+      background-color: #f1f3f4;
+      color: #5f6368;
+    }
+    .toolbar {
+      margin: 16px 0 24px;
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid #dadce0;
+      background-color: #1a73e8;
+      color: white;
+      cursor: pointer;
+    }
+    button.secondary {
+      background-color: #ffffff;
+      color: #1a73e8;
+    }
+    button:disabled {
+      background-color: #e0e0e0;
+      color: #757575;
+      cursor: default;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f3f4;
+      font-weight: 600;
+    }
+    .project-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .project-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background-color: #e8f0fe;
+      color: #1967d2;
+      margin-left: 4px;
+    }
+    .claims {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #5f6368;
+      white-space: pre-wrap;
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+    }
+    .error {
+      color: #b00020;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      Atlas Web App
+      <span id="modeBadge" class="mode-badge mode-viewer">VIEWER MODE</span>
+    </h1>
+    <p id="welcomeText">Welcome, <strong>user</strong>. This page will adjust capabilities based on your <code>atlas_roles</code> claim.</p>
+
+    <div class="toolbar">
+      <button id="addProjectBtn">Add project</button>
+      <button class="secondary" id="refreshBtn" type="button">Refresh roles from token</button>
+    </div>
+
+    <h3>Active projects</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Client</th>
+          <th>Status</th>
+          <th style="width: 140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="projectsTableBody">
+        <!-- Rows will be rendered by JS -->
+      </tbody>
+    </table>
+
+    <div class="claims">
+      <div id="error" class="error" style="display:none;"></div>
+      <strong>Decoded token claims</strong><span class="pill">atlas_roles</span>:
+      <pre id="claimsPre"></pre>
+    </div>
+  </div>
+
+  <script>
+    // --- helper: parse id_token from URL fragment (#id_token=...) ---
+    function getIdTokenFromHash() {
+      if (!window.location.hash) return null;
+      const hash = window.location.hash.substring(1); // remove '#'
+      const params = new URLSearchParams(hash);
+      return params.get('id_token');
+    }
+
+    // --- helper: naive JWT decode (no signature validation; demo only) ---
+    function decodeJwt(token) {
+      if (!token) return null;
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      try {
+        const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decodeURIComponent(escape(payload)));
+      } catch (e) {
+        console.error('Failed to decode JWT', e);
+        return null;
+      }
+    }
+
+    // --- demo data ---
+    const demoProjects = [
+      { name: 'Project Atlas', client: 'RetailCo', status: 'In flight' },
+      { name: 'Data Mesh POC', client: 'FinServe', status: 'Design' },
+      { name: 'IAM Modernization', client: 'HealthCorp', status: 'Discovery' }
+    ];
+
+    function renderProjects(isEditor) {
+      const tbody = document.getElementById('projectsTableBody');
+      tbody.innerHTML = '';
+
+      demoProjects.forEach(p => {
+        const tr = document.createElement('tr');
+        const tdName = document.createElement('td');
+        const tdClient = document.createElement('td');
+        const tdStatus = document.createElement('td');
+        const tdActions = document.createElement('td');
+
+        tdName.textContent = p.name;
+        tdClient.textContent = p.client;
+        tdStatus.textContent = p.status;
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'project-actions';
+
+        if (isEditor) {
+          const editBtn = document.createElement('button');
+          editBtn.className = 'secondary';
+          editBtn.type = 'button';
+          editBtn.textContent = 'Edit';
+          editBtn.onclick = () => alert('Pretend edit for ' + p.name);
+          actionsDiv.appendChild(editBtn);
+        } else {
+          const span = document.createElement('span');
+          span.style.fontSize = '12px';
+          span.style.color = '#5f6368';
+          span.textContent = 'View only';
+          actionsDiv.appendChild(span);
+        }
+
+        tdActions.appendChild(actionsDiv);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdClient);
+        tr.appendChild(tdStatus);
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyModeFromClaims(claims) {
+      const badge = document.getElementById('modeBadge');
+      const addBtn = document.getElementById('addProjectBtn');
+      const claimsPre = document.getElementById('claimsPre');
+      const errorDiv = document.getElementById('error');
+      const welcomeText = document.getElementById('welcomeText');
+
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+
+      if (!claims) {
+        badge.textContent = 'VIEWER MODE';
+        badge.className = 'mode-badge mode-viewer';
+        addBtn.disabled = true;
+        renderProjects(false);
+        claimsPre.textContent = '(no claims found – check id_token in URL)';
+        return;
+      }
+
+      const subject = claims.preferred_username || claims.email || claims.sub || 'user';
+      welcomeText.innerHTML = 'Welcome, <strong>' + subject + '</strong>. This page adjusts capabilities based on your <code>atlas_roles</code> claim.';
+
+      const atlasRoles = claims.atlas_roles || claims.roles || [];
+      const rolesText = JSON.stringify(atlasRoles, null, 2);
+      claimsPre.textContent = rolesText;
+
+      const isEditor = Array.isArray(atlasRoles) && atlasRoles.indexOf('Atlas-Editor') !== -1;
+
+      if (isEditor) {
+        badge.textContent = 'EDITOR MODE';
+        badge.className = 'mode-badge mode-editor';
+        addBtn.disabled = false;
+        addBtn.onclick = () => alert('Pretend add project');
+        renderProjects(true);
+      } else {
+        badge.textContent = 'VIEWER MODE';
+        badge.className = 'mode-badge mode-viewer';
+        addBtn.disabled = true;
+        addBtn.onclick = null;
+        renderProjects(false);
+      }
+    }
+
+    function init() {
+      const token = getIdTokenFromHash();
+      const claims = decodeJwt(token);
+
+      if (!token || !claims) {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'No valid id_token found in URL fragment. Make sure P1AIC is configured to send id_token to this redirect URI.';
+      }
+
+      applyModeFromClaims(claims);
+
+      document.getElementById('refreshBtn').onclick = () => {
+        const t = getIdTokenFromHash();
+        applyModeFromClaims(decodeJwt(t));
+      };
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
