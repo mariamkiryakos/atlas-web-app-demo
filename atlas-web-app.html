@@ -5,20 +5,24 @@
   <title>Atlas Web App</title>
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 40px;
-      background-color: #f7f7f9;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f5f7;
+      color: #222;
     }
     .container {
       max-width: 900px;
-      margin: 0 auto;
-      background: #ffffff;
+      margin: 40px auto;
+      background: #fff;
       border-radius: 8px;
-      padding: 24px 32px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      padding: 24px 32px 32px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
     }
     h1 {
       margin-top: 0;
+      font-size: 24px;
     }
     .mode-badge {
       display: inline-block;
@@ -26,101 +30,121 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-left: 8px;
-    }
-    .mode-editor {
-      background-color: #e6f4ea;
-      color: #137333;
     }
     .mode-viewer {
-      background-color: #f1f3f4;
-      color: #5f6368;
+      background: #eef2ff;
+      color: #3730a3;
+    }
+    .mode-editor {
+      background: #ecfdf3;
+      color: #166534;
+    }
+    .subtitle {
+      margin-top: 8px;
+      color: #4b5563;
     }
     .toolbar {
-      margin: 16px 0 24px;
+      margin: 20px 0;
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
-    button {
+    .btn {
+      border-radius: 6px;
+      border: 1px solid transparent;
+      padding: 8px 14px;
       font-size: 14px;
-      padding: 6px 12px;
-      border-radius: 4px;
-      border: 1px solid #dadce0;
-      background-color: #1a73e8;
-      color: white;
       cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 500;
     }
-    button.secondary {
-      background-color: #ffffff;
-      color: #1a73e8;
+    .btn.secondary {
+      background: #fff;
+      color: #111827;
+      border-color: #d1d5db;
     }
-    button:disabled {
-      background-color: #e0e0e0;
-      color: #757575;
+    .btn:disabled {
+      opacity: 0.6;
       cursor: default;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 8px;
+      font-size: 14px;
     }
-    th, td {
+    th,
+    td {
       padding: 8px 10px;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e5e7eb;
       text-align: left;
     }
     th {
-      background-color: #f1f3f4;
+      background: #f9fafb;
       font-weight: 600;
+      font-size: 13px;
+      color: #4b5563;
     }
-    .project-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .project-actions {
-      display: flex;
-      gap: 8px;
-    }
-    .pill {
+    .tag {
       display: inline-block;
-      font-size: 11px;
       padding: 2px 8px;
       border-radius: 999px;
-      background-color: #e8f0fe;
-      color: #1967d2;
-      margin-left: 4px;
+      font-size: 11px;
+      background: #f3f4f6;
+      color: #374151;
     }
-    .claims {
+    .tag.in-flight {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+    .tag.design {
+      background: #ecfdf3;
+      color: #166534;
+    }
+    .tag.discovery {
+      background: #fff7ed;
+      color: #92400e;
+    }
+    .claims-panel {
       margin-top: 24px;
-      font-size: 12px;
-      color: #5f6368;
-      white-space: pre-wrap;
-      background: #f8f9fa;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #e0e0e0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #f9fafb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      color: #111827;
     }
-    .error {
-      color: #b00020;
-      margin-bottom: 8px;
+    .claims-panel-title {
       font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .muted {
+      color: #6b7280;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>
-      Atlas Web App
-      <span id="modeBadge" class="mode-badge mode-viewer">VIEWER MODE</span>
-    </h1>
-    <p id="welcomeText">Welcome, <strong>user</strong>. This page will adjust capabilities based on your <code>atlas_roles</code> claim.</p>
+    <h1>Atlas Web App</h1>
+    <div id="mode-pill" class="mode-badge mode-viewer">
+      <span id="mode-text">VIEWER MODE</span>
+    </div>
+
+    <p class="subtitle">
+      Welcome, user. This page will adjust capabilities based on your
+      <code>atlas_roles</code> claim.
+    </p>
 
     <div class="toolbar">
-      <button id="addProjectBtn">Add project</button>
-      <button class="secondary" id="refreshBtn" type="button">Refresh roles from token</button>
+      <button id="btn-add-project" class="btn" disabled>
+        Add project
+      </button>
+      <button id="btn-refresh" class="btn secondary">
+        Refresh roles from token
+      </button>
     </div>
 
     <h3>Active projects</h3>
@@ -130,155 +154,186 @@
           <th>Project</th>
           <th>Client</th>
           <th>Status</th>
-          <th style="width: 140px;">Actions</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="projectsTableBody">
-        <!-- Rows will be rendered by JS -->
+      <tbody>
+        <tr>
+          <td>Project Atlas</td>
+          <td>RetailCo</td>
+          <td><span class="tag in-flight">In flight</span></td>
+          <td>
+            <span id="row1-actions-viewer">View only</span>
+            <span id="row1-actions-editor" style="display: none"
+              >Edit · Archive</span
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>Data Mesh POC</td>
+          <td>FinServe</td>
+          <td><span class="tag design">Design</span></td>
+          <td>
+            <span id="row2-actions-viewer">View only</span>
+            <span id="row2-actions-editor" style="display: none"
+              >Edit · Archive</span
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>IAM Modernization</td>
+          <td>HealthCorp</td>
+          <td><span class="tag discovery">Discovery</span></td>
+          <td>
+            <span id="row3-actions-viewer">View only</span>
+            <span id="row3-actions-editor" style="display: none"
+              >Edit · Archive</span
+            >
+          </td>
+        </tr>
       </tbody>
     </table>
 
-    <div class="claims">
-      <div id="error" class="error" style="display:none;"></div>
-      <strong>Decoded token claims</strong><span class="pill">atlas_roles</span>:
-      <pre id="claimsPre"></pre>
+    <div class="claims-panel">
+      <div class="claims-panel-title">Decoded token claims</div>
+      <div>
+        <span class="muted">atlas_roles:</span>
+        <span id="atlas-roles-text" class="muted"
+          >(no claims found – check id_token in URL)</span
+        >
+      </div>
     </div>
   </div>
 
   <script>
-    // --- helper: parse id_token from URL fragment (#id_token=...) ---
-    function getIdTokenFromHash() {
-      if (!window.location.hash) return null;
-      const hash = window.location.hash.substring(1); // remove '#'
-      const params = new URLSearchParams(hash);
-      return params.get('id_token');
-    }
-
-    // --- helper: naive JWT decode (no signature validation; demo only) ---
-    function decodeJwt(token) {
-      if (!token) return null;
-      const parts = token.split('.');
-      if (parts.length !== 3) return null;
-      try {
-        const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
-        return JSON.parse(decodeURIComponent(escape(payload)));
-      } catch (e) {
-        console.error('Failed to decode JWT', e);
-        return null;
+    (function () {
+      // ---- Helpers ----
+      function getHashParams() {
+        var hash = window.location.hash || "";
+        if (hash.charAt(0) === "#") {
+          hash = hash.substring(1);
+        }
+        return new URLSearchParams(hash);
       }
-    }
 
-    // --- demo data ---
-    const demoProjects = [
-      { name: 'Project Atlas', client: 'RetailCo', status: 'In flight' },
-      { name: 'Data Mesh POC', client: 'FinServe', status: 'Design' },
-      { name: 'IAM Modernization', client: 'HealthCorp', status: 'Discovery' }
-    ];
+      function parseJwt(token) {
+        if (!token) return null;
+        var parts = token.split(".");
+        if (parts.length !== 3) return null;
 
-    function renderProjects(isEditor) {
-      const tbody = document.getElementById('projectsTableBody');
-      tbody.innerHTML = '';
+        var payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        var json = decodeURIComponent(
+          atob(payload)
+            .split("")
+            .map(function (c) {
+              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join("")
+        );
+        return JSON.parse(json);
+      }
 
-      demoProjects.forEach(p => {
-        const tr = document.createElement('tr');
-        const tdName = document.createElement('td');
-        const tdClient = document.createElement('td');
-        const tdStatus = document.createElement('td');
-        const tdActions = document.createElement('td');
+      function applyUiFromRoles(atlasRoles) {
+        atlasRoles = atlasRoles || [];
+        var isEditor =
+          Array.isArray(atlasRoles) &&
+          atlasRoles.indexOf("Atlas-Editor") !== -1;
 
-        tdName.textContent = p.name;
-        tdClient.textContent = p.client;
-        tdStatus.textContent = p.status;
+        var modePill = document.getElementById("mode-pill");
+        var modeText = document.getElementById("mode-text");
+        var rolesText = document.getElementById("atlas-roles-text");
+        var btnAdd = document.getElementById("btn-add-project");
 
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'project-actions';
+        var row1View = document.getElementById("row1-actions-viewer");
+        var row1Edit = document.getElementById("row1-actions-editor");
+        var row2View = document.getElementById("row2-actions-viewer");
+        var row2Edit = document.getElementById("row2-actions-editor");
+        var row3View = document.getElementById("row3-actions-viewer");
+        var row3Edit = document.getElementById("row3-actions-editor");
 
-        if (isEditor) {
-          const editBtn = document.createElement('button');
-          editBtn.className = 'secondary';
-          editBtn.type = 'button';
-          editBtn.textContent = 'Edit';
-          editBtn.onclick = () => alert('Pretend edit for ' + p.name);
-          actionsDiv.appendChild(editBtn);
-        } else {
-          const span = document.createElement('span');
-          span.style.fontSize = '12px';
-          span.style.color = '#5f6368';
-          span.textContent = 'View only';
-          actionsDiv.appendChild(span);
+        if (rolesText) {
+          rolesText.textContent = atlasRoles.length
+            ? JSON.stringify(atlasRoles)
+            : "(no atlas_roles claim found)";
         }
 
-        tdActions.appendChild(actionsDiv);
+        if (isEditor) {
+          if (modePill) {
+            modePill.classList.remove("mode-viewer");
+            modePill.classList.add("mode-editor");
+          }
+          if (modeText) modeText.textContent = "EDITOR MODE";
+          if (btnAdd) btnAdd.disabled = false;
 
-        tr.appendChild(tdName);
-        tr.appendChild(tdClient);
-        tr.appendChild(tdStatus);
-        tr.appendChild(tdActions);
-        tbody.appendChild(tr);
-      });
-    }
+          if (row1View) row1View.style.display = "none";
+          if (row1Edit) row1Edit.style.display = "inline";
+          if (row2View) row2View.style.display = "none";
+          if (row2Edit) row2Edit.style.display = "inline";
+          if (row3View) row3View.style.display = "none";
+          if (row3Edit) row3Edit.style.display = "inline";
+        } else {
+          if (modePill) {
+            modePill.classList.remove("mode-editor");
+            modePill.classList.add("mode-viewer");
+          }
+          if (modeText) modeText.textContent = "VIEWER MODE";
+          if (btnAdd) btnAdd.disabled = true;
 
-    function applyModeFromClaims(claims) {
-      const badge = document.getElementById('modeBadge');
-      const addBtn = document.getElementById('addProjectBtn');
-      const claimsPre = document.getElementById('claimsPre');
-      const errorDiv = document.getElementById('error');
-      const welcomeText = document.getElementById('welcomeText');
+          if (row1View) row1View.style.display = "inline";
+          if (row1Edit) row1Edit.style.display = "none";
+          if (row2View) row2View.style.display = "inline";
+          if (row2Edit) row2Edit.style.display = "none";
+          if (row3View) row3View.style.display = "inline";
+          if (row3Edit) row3Edit.style.display = "none";
+        }
+      }
 
-      errorDiv.style.display = 'none';
-      errorDiv.textContent = '';
+      // ---- Main ----
+      var params = getHashParams();
+      var idToken = params.get("id_token");
 
-      if (!claims) {
-        badge.textContent = 'VIEWER MODE';
-        badge.className = 'mode-badge mode-viewer';
-        addBtn.disabled = true;
-        renderProjects(false);
-        claimsPre.textContent = '(no claims found – check id_token in URL)';
+      // 1) If no id_token yet, start OIDC login
+      if (!idToken) {
+        var authUrl = new URL(
+          "https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize"
+        );
+        authUrl.searchParams.set("client_id", "AtlasWebApp");
+        authUrl.searchParams.set(
+          "redirect_uri",
+          window.location.origin + window.location.pathname
+        );
+        authUrl.searchParams.set("response_type", "id_token");
+        authUrl.searchParams.set(
+          "scope",
+          "openid profile email atlas"
+        );
+        authUrl.searchParams.set(
+          "nonce",
+          (window.crypto && crypto.randomUUID && crypto.randomUUID()) ||
+            String(Date.now())
+        );
+        authUrl.searchParams.set("state", "atlas_" + Date.now());
+
+        window.location.replace(authUrl.toString());
         return;
       }
 
-      const subject = claims.preferred_username || claims.email || claims.sub || 'user';
-      welcomeText.innerHTML = 'Welcome, <strong>' + subject + '</strong>. This page adjusts capabilities based on your <code>atlas_roles</code> claim.';
+      // 2) We have an id_token – decode and apply roles
+      var claims = parseJwt(idToken) || {};
+      var atlasRoles = claims.atlas_roles || [];
+      applyUiFromRoles(atlasRoles);
 
-      const atlasRoles = claims.atlas_roles || claims.roles || [];
-      const rolesText = JSON.stringify(atlasRoles, null, 2);
-      claimsPre.textContent = rolesText;
-
-      const isEditor = Array.isArray(atlasRoles) && atlasRoles.indexOf('Atlas-Editor') !== -1;
-
-      if (isEditor) {
-        badge.textContent = 'EDITOR MODE';
-        badge.className = 'mode-badge mode-editor';
-        addBtn.disabled = false;
-        addBtn.onclick = () => alert('Pretend add project');
-        renderProjects(true);
-      } else {
-        badge.textContent = 'VIEWER MODE';
-        badge.className = 'mode-badge mode-viewer';
-        addBtn.disabled = true;
-        addBtn.onclick = null;
-        renderProjects(false);
+      // 3) Optional: wire "Refresh roles from token" button
+      var btnRefresh = document.getElementById("btn-refresh");
+      if (btnRefresh) {
+        btnRefresh.addEventListener("click", function () {
+          var p = getHashParams();
+          var t = p.get("id_token");
+          var c = parseJwt(t) || {};
+          applyUiFromRoles(c.atlas_roles || []);
+        });
       }
-    }
-
-    function init() {
-      const token = getIdTokenFromHash();
-      const claims = decodeJwt(token);
-
-      if (!token || !claims) {
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('error').textContent = 'No valid id_token found in URL fragment. Make sure P1AIC is configured to send id_token to this redirect URI.';
-      }
-
-      applyModeFromClaims(claims);
-
-      document.getElementById('refreshBtn').onclick = () => {
-        const t = getIdTokenFromHash();
-        applyModeFromClaims(decodeJwt(t));
-      };
-    }
-
-    window.onload = init;
+    })();
   </script>
 </body>
 </html>
