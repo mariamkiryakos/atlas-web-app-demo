@@ -2,153 +2,458 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atlas Web App</title>
   <style>
+    :root {
+      --artifact-background: var(--theme-background, #ffffff);
+      --artifact-background-light: var(--theme-background-light, #f6f6f6);
+      --artifact-background-mid: var(--theme-background-mid, #f4f5f7);
+      --artifact-border-light: var(--theme-border-light, #e5e7eb);
+      --artifact-border-dark: var(--theme-border-dark, #d1d5db);
+      --artifact-primary-brand: var(--theme-primary-brand, #2563eb);
+      --artifact-primary-hover: var(--theme-primary-hover, #1d4ed8);
+      --artifact-text-primary: var(--theme-text-primary, #111827);
+      --artifact-text-secondary: var(--theme-text-secondary, #6b7280);
+      --artifact-selected: var(--theme-selected, #eef2ff);
+      --artifact-viewer-bg: #eef2ff;
+      --artifact-viewer-text: #3730a3;
+      --artifact-editor-bg: #ecfdf3;
+      --artifact-editor-text: #166534;
+      --artifact-info-bg: #edf6ff;
+      --artifact-info-text: #1d4ed8;
+      --artifact-warn-bg: #fff7ed;
+      --artifact-warn-text: #92400e;
+      --artifact-tag-flight-bg: #eef2ff;
+      --artifact-tag-flight-text: #3730a3;
+      --artifact-tag-design-bg: #ecfdf3;
+      --artifact-tag-design-text: #166534;
+      --artifact-tag-discovery-bg: #fff7ed;
+      --artifact-tag-discovery-text: #92400e;
+      --artifact-overlay: rgba(15, 23, 42, 0.45);
+      --artifact-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    html[data-theme='dark'] {
+      --artifact-viewer-bg: #1f2a5c;
+      --artifact-viewer-text: #dfe4ff;
+      --artifact-editor-bg: #12351f;
+      --artifact-editor-text: #d8f5df;
+      --artifact-info-bg: #102a43;
+      --artifact-info-text: #bfdbfe;
+      --artifact-warn-bg: #40220f;
+      --artifact-warn-text: #fde6c8;
+      --artifact-tag-flight-bg: #1f2a5c;
+      --artifact-tag-flight-text: #dfe4ff;
+      --artifact-tag-design-bg: #12351f;
+      --artifact-tag-design-text: #d8f5df;
+      --artifact-tag-discovery-bg: #40220f;
+      --artifact-tag-discovery-text: #fde6c8;
+      --artifact-overlay: rgba(2, 6, 23, 0.68);
+      --artifact-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
       margin: 0;
       padding: 0;
-      background: #f4f5f7;
-      color: #222;
+      background: var(--artifact-background-mid);
+      color: var(--artifact-text-primary);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     .container {
       max-width: 900px;
       margin: 40px auto;
-      background: #fff;
+      background: var(--artifact-background);
       border-radius: 8px;
       padding: 24px 32px 32px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+      border: 1px solid var(--artifact-border-light);
+      box-shadow: var(--artifact-shadow);
     }
+
     h1 {
-      margin-top: 0;
+      margin: 0;
       font-size: 24px;
+      font-weight: 700;
     }
+
     .mode-badge {
       display: inline-block;
+      margin-top: 12px;
       padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      background: var(--artifact-viewer-bg);
+      color: var(--artifact-viewer-text);
     }
-    .mode-viewer {
-      background: #eef2ff;
-      color: #3730a3;
+
+    .mode-badge.editor {
+      background: var(--artifact-editor-bg);
+      color: var(--artifact-editor-text);
     }
-    .mode-editor {
-      background: #ecfdf3;
-      color: #166534;
-    }
+
     .subtitle {
-      margin-top: 8px;
-      color: #4b5563;
+      margin-top: 12px;
+      color: var(--artifact-text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
     }
+
     .toolbar {
       margin: 20px 0;
       display: flex;
       gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
+
     .btn {
       border-radius: 6px;
       border: 1px solid transparent;
       padding: 8px 14px;
       font-size: 14px;
       cursor: pointer;
-      background: #2563eb;
-      color: #fff;
+      background: var(--artifact-primary-brand);
+      color: var(--artifact-background);
       font-weight: 500;
     }
+
     .btn.secondary {
-      background: #fff;
-      color: #111827;
-      border-color: #d1d5db;
+      background: var(--artifact-background);
+      color: var(--artifact-text-primary);
+      border-color: var(--artifact-border-dark);
     }
+
+    .btn:hover:not(:disabled) {
+      background: var(--artifact-primary-hover);
+    }
+
+    .btn.secondary:hover:not(:disabled) {
+      background: var(--artifact-background-light);
+    }
+
     .btn:disabled {
       opacity: 0.6;
       cursor: default;
     }
+
+    .status-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--artifact-info-bg);
+      color: var(--artifact-info-text);
+      font-size: 13px;
+    }
+
+    .status-banner.warning {
+      background: var(--artifact-warn-bg);
+      color: var(--artifact-warn-text);
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      font-size: 20px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 8px;
       font-size: 14px;
     }
-    th,
-    td {
-      padding: 8px 10px;
-      border-bottom: 1px solid #e5e7eb;
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid var(--artifact-border-light);
       text-align: left;
+      vertical-align: middle;
     }
+
     th {
-      background: #f9fafb;
+      background: var(--artifact-background-light);
       font-weight: 600;
       font-size: 13px;
-      color: #4b5563;
+      color: var(--artifact-text-secondary);
     }
+
     .tag {
       display: inline-block;
       padding: 2px 8px;
       border-radius: 999px;
       font-size: 11px;
-      background: #f3f4f6;
-      color: #374151;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
+
     .tag.in-flight {
-      background: #eef2ff;
-      color: #3730a3;
+      background: var(--artifact-tag-flight-bg);
+      color: var(--artifact-tag-flight-text);
     }
+
     .tag.design {
-      background: #ecfdf3;
-      color: #166534;
+      background: var(--artifact-tag-design-bg);
+      color: var(--artifact-tag-design-text);
     }
+
     .tag.discovery {
-      background: #fff7ed;
-      color: #92400e;
+      background: var(--artifact-tag-discovery-bg);
+      color: var(--artifact-tag-discovery-text);
     }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .action-link {
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      color: var(--artifact-primary-brand);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .action-link.muted {
+      color: var(--artifact-text-secondary);
+      cursor: default;
+    }
+
     .claims-panel {
       margin-top: 24px;
       padding: 12px 14px;
       border-radius: 8px;
-      background: #f9fafb;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
+      background: var(--artifact-background-light);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 13px;
-      color: #111827;
+      color: var(--artifact-text-primary);
+      border: 1px solid var(--artifact-border-light);
     }
+
     .claims-panel-title {
       font-weight: 600;
       margin-bottom: 6px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     .muted {
-      color: #6b7280;
+      color: var(--artifact-text-secondary);
+    }
+
+    .empty-state {
+      display: none;
+      padding: 16px;
+      border: 1px dashed var(--artifact-border-dark);
+      border-radius: 8px;
+      color: var(--artifact-text-secondary);
+      font-size: 14px;
+      background: var(--artifact-background-light);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--artifact-overlay);
+      z-index: 20;
+    }
+
+    .modal {
+      width: min(620px, 100%);
+      background: var(--artifact-background);
+      border: 1px solid var(--artifact-border-light);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--artifact-shadow);
+    }
+
+    .modal-head,
+    .modal-actions {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--artifact-border-light);
+    }
+
+    .modal-actions {
+      border-bottom: none;
+      border-top: 1px solid var(--artifact-border-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .modal-copy {
+      margin: 0;
+      font-size: 14px;
+      color: var(--artifact-text-secondary);
+      line-height: 1.5;
+    }
+
+    .modal-body {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      background: var(--artifact-background-light);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--artifact-text-primary);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--artifact-border-dark);
+      border-radius: 6px;
+      background: var(--artifact-background);
+      color: var(--artifact-text-primary);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .field textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: var(--artifact-text-secondary);
+      margin: 0;
+    }
+
+    @media screen and (max-width: 760px) {
+      .container {
+        margin: 16px;
+        padding: 18px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 0.4in 0.6in;
+        background: #fff;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .container, .dashboard, .shell, main {
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+      [style*="position:sticky"], [style*="position: sticky"],
+      [class*="topbar"], [class*="navbar"], [class*="header"][class*="sticky"] {
+        position: static !important;
+      }
+      section, [class*="section"], .header {
+        break-inside: avoid;
+        margin-bottom: 20px !important;
+      }
+      [class*="card"], [class*="Card"] {
+        break-inside: avoid;
+        padding: 18px !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,0,0,0.08);
+      }
+      [class*="grid"], [class*="row"] {
+        gap: 10px !important;
+        margin-bottom: 20px !important;
+      }
+      [class*="chart"], [class*="Chart"] {
+        break-inside: avoid;
+        height: 240px !important;
+      }
+      [class*="chart"][class*="tall"], [class*="Chart"][class*="tall"],
+      [class*="chart"][class*="full"], [class*="Chart"][class*="full"] {
+        height: 280px !important;
+      }
+      table, thead, .funnel, .heatmap, .list, .goals {
+        break-inside: avoid;
+      }
+      [class*="quote-list"], [class*="scroll"],
+      [style*="max-height"], [style*="overflow"] {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      [class*="tab-panel"], [class*="tabpanel"] {
+        display: block !important;
+      }
+      [class*="tab-bar"], [class*="tabs"]:not([class*="panel"]) {
+        display: none !important;
+      }
+      [class*="fade"], [class*="animate"], [class*="slide"] {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      button, [role="button"], .interactive-only, .modal-backdrop {
+        display: none !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Atlas Web App</h1>
-    <div id="mode-pill" class="mode-badge mode-viewer">
+    <div id="mode-pill" class="mode-badge">
       <span id="mode-text">VIEWER MODE</span>
     </div>
-
     <p class="subtitle">
-      Welcome, user. This page will adjust capabilities based on your
-      <code>atlas_roles</code> claim.
+      Welcome, user. This page will adjust capabilities based on your <code>atlas_roles</code> claim.
+      The project list is framed for a healthcare and pharma delivery environment.
     </p>
 
     <div class="toolbar">
-      <button id="btn-add-project" class="btn" disabled>
-        Add project
-      </button>
-      <button id="btn-refresh" class="btn secondary">
-        Refresh roles from token
-      </button>
+      <button id="btn-add-project" class="btn" disabled>Add project</button>
+      <button id="btn-refresh" class="btn secondary">Refresh roles from token</button>
     </div>
 
+    <div id="status-banner" class="status-banner"></div>
+
     <h3>Active projects</h3>
-    <table>
+    <div id="projects-empty" class="empty-state">No active projects yet.</div>
+    <table id="projects-table">
       <thead>
         <tr>
           <th>Project</th>
@@ -157,60 +462,100 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>P1AIC IGA Administration Lab Environment</td>
-          <td>Internal Training</td>
-          <td><span class="tag in-flight">In flight</span></td>
-          <td>
-            <span id="row1-actions-viewer">View only</span>
-            <span id="row1-actions-editor" style="display: none"
-              >Edit · Archive</span
-            >
-          </td>
-        </tr>
-        <tr>
-          <td>CM5202 Algorithm Visualisation Portal</td>
-          <td>School of Computer Science</td>
-          <td><span class="tag design">Design</span></td>
-          <td>
-            <span id="row2-actions-viewer">View only</span>
-            <span id="row2-actions-editor" style="display: none"
-              >Edit · Archive</span
-            >
-          </td>
-        </tr>
-        <tr>
-          <td>CM5313 Student Enrolment Database Prototype</td>
-          <td>University Registry Services</td>
-          <td><span class="tag discovery">Discovery</span></td>
-          <td>
-            <span id="row3-actions-viewer">View only</span>
-            <span id="row3-actions-editor" style="display: none"
-              >Edit · Archive</span
-            >
-          </td>
-        </tr>
-      </tbody>
+      <tbody id="projects-body"></tbody>
     </table>
 
     <div class="claims-panel">
       <div class="claims-panel-title">Decoded token claims</div>
-      <div>
-        <span class="muted">atlas_roles:</span>
-        <span id="atlas-roles-text" class="muted"
-          >(no claims found – check id_token in URL)</span
-        >
+      <div><span class="muted">atlas_roles:</span> <span id="atlas-roles-text" class="muted">(no claims found – check id_token in URL)</span></div>
+    </div>
+  </div>
+
+  <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-head">
+        <h3 id="modal-title" class="modal-title">Add project</h3>
+        <p class="modal-copy">Create or update a project record. Only Atlas-Editor sessions can save changes.</p>
+      </div>
+      <div class="modal-body">
+        <form id="project-form">
+          <input type="hidden" id="project-id" />
+          <div class="form-grid">
+            <div class="field">
+              <label for="project-name">Project name</label>
+              <input id="project-name" name="projectName" required />
+            </div>
+            <div class="field">
+              <label for="project-client">Client</label>
+              <input id="project-client" name="client" required />
+            </div>
+            <div class="field">
+              <label for="project-status">Status</label>
+              <select id="project-status" name="status">
+                <option>In flight</option>
+                <option>Design</option>
+                <option>Discovery</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="project-owner">Owner</label>
+              <input id="project-owner" name="owner" placeholder="Priya" />
+            </div>
+            <div class="field full">
+              <label for="project-notes">Notes</label>
+              <textarea id="project-notes" name="notes" placeholder="Add a short delivery note for the demo."></textarea>
+            </div>
+          </div>
+          <p class="helper">Projects are stored in browser memory in this demo build, so a page refresh resets changes.</p>
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-cancel" type="button" class="btn secondary">Cancel</button>
+        <button id="btn-save" type="submit" form="project-form" class="btn">Save project</button>
       </div>
     </div>
   </div>
 
   <script>
     (function () {
-      // ---- Helpers ----
+      var state = {
+        mode: 'viewer',
+        atlasRoles: [],
+        editingProjectId: null,
+        projects: [
+          {
+            id: 1,
+            name: 'Clinical Trial Identity Governance Dashboard',
+            client: 'Healthcare Operations',
+            status: 'In flight',
+            owner: 'Priya',
+            notes: 'Tracks access oversight and identity approval workflows for research teams.',
+            archived: false
+          },
+          {
+            id: 2,
+            name: 'Pharmacy Inventory Access Review Portal',
+            client: 'Pharma Supply Management',
+            status: 'Design',
+            owner: 'Priya',
+            notes: 'Supports periodic access review and exception handling for controlled inventory processes.',
+            archived: false
+          },
+          {
+            id: 3,
+            name: 'Patient Onboarding Identity Workflow Prototype',
+            client: 'Care Delivery Services',
+            status: 'Discovery',
+            owner: 'Priya',
+            notes: 'Explores secure patient and workforce onboarding journeys for regulated environments.',
+            archived: false
+          }
+        ]
+      };
+
       function getHashParams() {
-        var hash = window.location.hash || "";
-        if (hash.charAt(0) === "#") {
+        var hash = window.location.hash || '';
+        if (hash.charAt(0) === '#') {
           hash = hash.substring(1);
         }
         return new URLSearchParams(hash);
@@ -218,122 +563,282 @@
 
       function parseJwt(token) {
         if (!token) return null;
-        var parts = token.split(".");
+        var parts = token.split('.');
         if (parts.length !== 3) return null;
-
-        var payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-        var json = decodeURIComponent(
-          atob(payload)
-            .split("")
-            .map(function (c) {
-              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join("")
-        );
-        return JSON.parse(json);
+        try {
+          var payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          var json = decodeURIComponent(
+            atob(payload)
+              .split('')
+              .map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join('')
+          );
+          return JSON.parse(json);
+        } catch (e) {
+          return null;
+        }
       }
 
-      function applyUiFromRoles(atlasRoles) {
-        atlasRoles = atlasRoles || [];
-        var isEditor =
-          Array.isArray(atlasRoles) &&
-          atlasRoles.indexOf("Atlas-Editor") !== -1;
+      function isEditor() {
+        return state.mode === 'editor';
+      }
 
-        var modePill = document.getElementById("mode-pill");
-        var modeText = document.getElementById("mode-text");
-        var rolesText = document.getElementById("atlas-roles-text");
-        var btnAdd = document.getElementById("btn-add-project");
+      function getStatusClass(status) {
+        var value = (status || '').toLowerCase();
+        if (value === 'in flight') return 'in-flight';
+        if (value === 'design') return 'design';
+        if (value === 'discovery') return 'discovery';
+        return 'in-flight';
+      }
 
-        var row1View = document.getElementById("row1-actions-viewer");
-        var row1Edit = document.getElementById("row1-actions-editor");
-        var row2View = document.getElementById("row2-actions-viewer");
-        var row2Edit = document.getElementById("row2-actions-editor");
-        var row3View = document.getElementById("row3-actions-viewer");
-        var row3Edit = document.getElementById("row3-actions-editor");
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
 
-        if (rolesText) {
-          rolesText.textContent = atlasRoles.length
-            ? JSON.stringify(atlasRoles)
-            : "(no atlas_roles claim found)";
+      function showStatus(message, kind) {
+        var el = document.getElementById('status-banner');
+        if (!el) return;
+        el.className = 'status-banner' + (kind === 'warning' ? ' warning' : '');
+        el.textContent = message;
+        el.style.display = 'block';
+        window.clearTimeout(showStatus._timer);
+        showStatus._timer = window.setTimeout(function () {
+          el.style.display = 'none';
+        }, 2800);
+      }
+
+      function setModeFromRoles(atlasRoles) {
+        state.atlasRoles = Array.isArray(atlasRoles) ? atlasRoles : [];
+        state.mode = state.atlasRoles.indexOf('Atlas-Editor') !== -1 ? 'editor' : 'viewer';
+        var modePill = document.getElementById('mode-pill');
+        var modeText = document.getElementById('mode-text');
+        var rolesText = document.getElementById('atlas-roles-text');
+        var btnAdd = document.getElementById('btn-add-project');
+        if (modePill) modePill.classList.toggle('editor', isEditor());
+        if (modeText) modeText.textContent = isEditor() ? 'EDITOR MODE' : 'VIEWER MODE';
+        if (rolesText) rolesText.textContent = state.atlasRoles.length ? JSON.stringify(state.atlasRoles) : '(no atlas_roles claim found)';
+        if (btnAdd) btnAdd.disabled = !isEditor();
+        renderProjects();
+      }
+
+      function getActiveProjects() {
+        return state.projects.filter(function (project) { return !project.archived; });
+      }
+
+      function renderProjects() {
+        var body = document.getElementById('projects-body');
+        var table = document.getElementById('projects-table');
+        var empty = document.getElementById('projects-empty');
+        var projects = getActiveProjects();
+        if (!body) return;
+        if (!projects.length) {
+          body.innerHTML = '';
+          if (table) table.style.display = 'none';
+          if (empty) empty.style.display = 'block';
+          return;
         }
+        if (table) table.style.display = 'table';
+        if (empty) empty.style.display = 'none';
+        body.innerHTML = projects.map(function (project) {
+          var viewer = '<span class="action-link muted">View only</span>';
+          var editor = '<button class="action-link" data-action="edit" data-id="' + project.id + '">Edit</button><button class="action-link" data-action="archive" data-id="' + project.id + '">Archive</button>';
+          return '<tr>' +
+            '<td>' + escapeHtml(project.name) + '</td>' +
+            '<td>' + escapeHtml(project.client) + '</td>' +
+            '<td><span class="tag ' + getStatusClass(project.status) + '">' + escapeHtml(project.status) + '</span></td>' +
+            '<td><div class="actions">' + (isEditor() ? editor : viewer) + '</div></td>' +
+            '</tr>';
+        }).join('');
+      }
 
-        if (isEditor) {
-          if (modePill) {
-            modePill.classList.remove("mode-viewer");
-            modePill.classList.add("mode-editor");
+      function openProjectForm(projectId) {
+        if (!isEditor()) {
+          showStatus('This session is read-only. Switch back to Atlas-Editor to make changes.', 'warning');
+          return;
+        }
+        var project = null;
+        if (projectId != null) {
+          project = state.projects.find(function (item) { return item.id === projectId; }) || null;
+        }
+        state.editingProjectId = project ? project.id : null;
+        document.getElementById('modal-title').textContent = project ? 'Edit project' : 'Add project';
+        document.getElementById('project-id').value = project ? String(project.id) : '';
+        document.getElementById('project-name').value = project ? project.name : '';
+        document.getElementById('project-client').value = project ? project.client : '';
+        document.getElementById('project-status').value = project ? project.status : 'In flight';
+        document.getElementById('project-owner').value = project ? (project.owner || '') : 'Priya';
+        document.getElementById('project-notes').value = project ? (project.notes || '') : '';
+        document.getElementById('modal-backdrop').style.display = 'flex';
+        document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'false');
+        document.getElementById('project-name').focus();
+      }
+
+      function closeProjectForm() {
+        document.getElementById('modal-backdrop').style.display = 'none';
+        document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'true');
+        state.editingProjectId = null;
+        document.getElementById('project-form').reset();
+        document.getElementById('project-status').value = 'In flight';
+      }
+
+      function saveProject(event) {
+        event.preventDefault();
+        if (!isEditor()) {
+          showStatus('This session is read-only. Changes were not saved.', 'warning');
+          return;
+        }
+        var id = document.getElementById('project-id').value;
+        var name = document.getElementById('project-name').value.trim();
+        var client = document.getElementById('project-client').value.trim();
+        var status = document.getElementById('project-status').value;
+        var owner = document.getElementById('project-owner').value.trim();
+        var notes = document.getElementById('project-notes').value.trim();
+        if (!name || !client) {
+          showStatus('Project name and client are required.', 'warning');
+          return;
+        }
+        if (id) {
+          var existing = state.projects.find(function (project) { return project.id === Number(id); });
+          if (existing) {
+            existing.name = name;
+            existing.client = client;
+            existing.status = status;
+            existing.owner = owner;
+            existing.notes = notes;
+            existing.archived = false;
+            showStatus('Project updated.');
           }
-          if (modeText) modeText.textContent = "EDITOR MODE";
-          if (btnAdd) btnAdd.disabled = false;
-
-          if (row1View) row1View.style.display = "none";
-          if (row1Edit) row1Edit.style.display = "inline";
-          if (row2View) row2View.style.display = "none";
-          if (row2Edit) row2Edit.style.display = "inline";
-          if (row3View) row3View.style.display = "none";
-          if (row3Edit) row3Edit.style.display = "inline";
         } else {
-          if (modePill) {
-            modePill.classList.remove("mode-editor");
-            modePill.classList.add("mode-viewer");
-          }
-          if (modeText) modeText.textContent = "VIEWER MODE";
-          if (btnAdd) btnAdd.disabled = true;
-
-          if (row1View) row1View.style.display = "inline";
-          if (row1Edit) row1Edit.style.display = "none";
-          if (row2View) row2View.style.display = "inline";
-          if (row2Edit) row2Edit.style.display = "none";
-          if (row3View) row3View.style.display = "inline";
-          if (row3Edit) row3Edit.style.display = "none";
+          var newId = state.projects.reduce(function (maxId, project) { return Math.max(maxId, project.id); }, 0) + 1;
+          state.projects.push({
+            id: newId,
+            name: name,
+            client: client,
+            status: status,
+            owner: owner,
+            notes: notes,
+            archived: false
+          });
+          showStatus('Project added.');
         }
+        closeProjectForm();
+        renderProjects();
       }
 
-      // ---- Main ----
-      var params = getHashParams();
-      var idToken = params.get("id_token");
-
-      // 1) If no id_token yet, start OIDC login
-      if (!idToken) {
-        var authUrl = new URL(
-          "https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize"
-        );
-        authUrl.searchParams.set("client_id", "AtlasWebApp");
-        authUrl.searchParams.set(
-          "redirect_uri",
-          window.location.origin + window.location.pathname
-        );
-        authUrl.searchParams.set("response_type", "id_token");
-        authUrl.searchParams.set(
-          "scope",
-          "openid profile email atlas"
-        );
-        authUrl.searchParams.set(
-          "nonce",
-          (window.crypto && crypto.randomUUID && crypto.randomUUID()) ||
-            String(Date.now())
-        );
-        authUrl.searchParams.set("state", "atlas_" + Date.now());
-
-        window.location.replace(authUrl.toString());
-        return;
+      function archiveProject(projectId) {
+        if (!isEditor()) {
+          showStatus('This session is read-only. Projects cannot be archived.', 'warning');
+          return;
+        }
+        var project = state.projects.find(function (item) { return item.id === projectId; });
+        if (!project) return;
+        project.archived = true;
+        renderProjects();
+        showStatus('Project archived.');
       }
 
-      // 2) We have an id_token – decode and apply roles
-      var claims = parseJwt(idToken) || {};
-      var atlasRoles = claims.atlas_roles || [];
-      applyUiFromRoles(atlasRoles);
+      function handleProjectTableClick(event) {
+        var target = event.target;
+        if (!target || !target.getAttribute) return;
+        var action = target.getAttribute('data-action');
+        var id = Number(target.getAttribute('data-id'));
+        if (!action || !id) return;
+        if (action === 'edit') openProjectForm(id);
+        if (action === 'archive') archiveProject(id);
+      }
 
-      // 3) Optional: wire "Refresh roles from token" button
-      var btnRefresh = document.getElementById("btn-refresh");
-      if (btnRefresh) {
-        btnRefresh.addEventListener("click", function () {
-          var p = getHashParams();
-          var t = p.get("id_token");
-          var c = parseJwt(t) || {};
-          applyUiFromRoles(c.atlas_roles || []);
+      function bindEvents() {
+        var addBtn = document.getElementById('btn-add-project');
+        var refreshBtn = document.getElementById('btn-refresh');
+        var cancelBtn = document.getElementById('btn-cancel');
+        var backdrop = document.getElementById('modal-backdrop');
+        var form = document.getElementById('project-form');
+        var tableBody = document.getElementById('projects-body');
+
+        if (addBtn) addBtn.addEventListener('click', function () { openProjectForm(null); });
+        if (refreshBtn) {
+          refreshBtn.addEventListener('click', function () {
+            var p = getHashParams();
+            var t = p.get('id_token');
+            var c = parseJwt(t) || {};
+            setModeFromRoles(c.atlas_roles || []);
+            showStatus('Roles refreshed from the current token.');
+          });
+        }
+        if (cancelBtn) cancelBtn.addEventListener('click', closeProjectForm);
+        if (backdrop) {
+          backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop) closeProjectForm();
+          });
+        }
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape' && document.getElementById('modal-backdrop').style.display === 'flex') {
+            closeProjectForm();
+          }
         });
+        if (form) form.addEventListener('submit', saveProject);
+        if (tableBody) tableBody.addEventListener('click', handleProjectTableClick);
       }
+
+      function startLoginIfNeeded() {
+        var params = getHashParams();
+        var idToken = params.get('id_token');
+        if (idToken) return idToken;
+        var authUrl = new URL('https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize');
+        authUrl.searchParams.set('client_id', 'AtlasWebApp');
+        authUrl.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
+        authUrl.searchParams.set('response_type', 'id_token');
+        authUrl.searchParams.set('scope', 'openid profile email atlas');
+        authUrl.searchParams.set('nonce', (window.crypto && crypto.randomUUID && crypto.randomUUID()) || String(Date.now()));
+        authUrl.searchParams.set('state', 'atlas_' + Date.now());
+        window.location.replace(authUrl.toString());
+        return null;
+      }
+
+      bindEvents();
+      renderProjects();
+      var idToken = startLoginIfNeeded();
+      if (!idToken) return;
+      var claims = parseJwt(idToken) || {};
+      setModeFromRoles(claims.atlas_roles || []);
     })();
+  </script>
+
+  <script>
+
+    function prepareChartsForPrint() {
+      document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
+        var chart = echarts.getInstanceByDom(el);
+        if (!chart) return;
+        var img = new Image();
+        img.src = chart.getDataURL({ type: 'png', pixelRatio: 2 });
+        img.className = 'print-chart-img';
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;z-index:10;';
+        el.dataset.prevPosition = el.style.position;
+        el.style.position = 'relative';
+        el.appendChild(img);
+      });
+    }
+
+    function cleanUpAfterPrint() {
+      document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
+        var img = el.querySelector('.print-chart-img');
+        if (!img) return;
+        img.remove();
+        el.style.position = el.dataset.prevPosition || '';
+        delete el.dataset.prevPosition;
+      });
+    }
+
+    window.addEventListener('beforeprint', prepareChartsForPrint);
+    window.addEventListener('afterprint', cleanUpAfterPrint);
   </script>
 </body>
 </html>
