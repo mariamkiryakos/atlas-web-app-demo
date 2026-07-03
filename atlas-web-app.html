@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Atlas Web App</title>
+  <title>Merchant Access Workspace</title>
   <style>
     :root {
       --artifact-background: var(--theme-background, #ffffff);
@@ -435,29 +435,29 @@
 </head>
 <body>
   <div class="container">
-    <h1>Atlas Web App</h1>
+    <h1>Merchant Access Workspace</h1>
     <div id="mode-pill" class="mode-badge">
       <span id="mode-text">VIEWER MODE</span>
     </div>
     <p class="subtitle">
-      Welcome, user. This page will adjust capabilities based on your <code>atlas_roles</code> claim.
-      The project list is framed for a healthcare and pharma delivery environment.
+      Welcome, merchant operator. This page will adjust capabilities based on your <code>atlas_roles</code> claim.
+      The project list is framed for a fintech platform serving merchants and their frontline teams.
     </p>
 
     <div class="toolbar">
-      <button id="btn-add-project" class="btn" disabled>Add project</button>
+      <button id="btn-add-project" class="btn" disabled>Add merchant program</button>
       <button id="btn-refresh" class="btn secondary">Refresh roles from token</button>
     </div>
 
     <div id="status-banner" class="status-banner"></div>
 
-    <h3>Active projects</h3>
-    <div id="projects-empty" class="empty-state">No active projects yet.</div>
+    <h3>Active merchant programs</h3>
+    <div id="projects-empty" class="empty-state">No active merchant programs yet.</div>
     <table id="projects-table">
       <thead>
         <tr>
-          <th>Project</th>
-          <th>Client</th>
+          <th>Program</th>
+          <th>Merchant</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -476,19 +476,19 @@
   <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-head">
-        <h3 id="modal-title" class="modal-title">Add project</h3>
-        <p class="modal-copy">Create or update a project record. Only Atlas-Editor sessions can save changes.</p>
+        <h3 id="modal-title" class="modal-title">Add merchant program</h3>
+        <p class="modal-copy">Create or update a merchant program record. Only Atlas-Editor sessions can save changes.</p>
       </div>
       <div class="modal-body">
         <form id="project-form">
           <input type="hidden" id="project-id" />
           <div class="form-grid">
             <div class="field">
-              <label for="project-name">Project name</label>
+              <label for="project-name">Program name</label>
               <input id="project-name" name="projectName" required />
             </div>
             <div class="field">
-              <label for="project-client">Client</label>
+              <label for="project-client">Merchant</label>
               <input id="project-client" name="client" required />
             </div>
             <div class="field">
@@ -505,10 +505,10 @@
             </div>
             <div class="field full">
               <label for="project-notes">Notes</label>
-              <textarea id="project-notes" name="notes" placeholder="Add a short delivery note for the demo."></textarea>
+              <textarea id="project-notes" name="notes" placeholder="Add a short merchant rollout note for the demo."></textarea>
             </div>
           </div>
-          <p class="helper">Projects are stored in browser memory in this demo build, so a page refresh resets changes.</p>
+          <p class="helper">Merchant programs are stored in browser memory in this demo build, so a page refresh resets changes.</p>
         </form>
       </div>
       <div class="modal-actions">
@@ -527,29 +527,29 @@
         projects: [
           {
             id: 1,
-            name: 'Clinical Trial Identity Governance Dashboard',
-            client: 'Healthcare Operations',
+            name: 'Merchant Payout Access Governance Workspace',
+            client: 'NorthStar Retail Group',
             status: 'In flight',
             owner: 'Priya',
-            notes: 'Tracks access oversight and identity approval workflows for research teams.',
+            notes: 'Gives merchant finance and operations teams controlled access to payouts, refunds, and dispute workflows.',
             archived: false
           },
           {
             id: 2,
-            name: 'Pharmacy Inventory Access Review Portal',
-            client: 'Pharma Supply Management',
+            name: 'Chargeback Resolution Team Portal',
+            client: 'Harbor Eats Marketplace',
             status: 'Design',
             owner: 'Priya',
-            notes: 'Supports periodic access review and exception handling for controlled inventory processes.',
+            notes: 'Supports merchant support and back-office staff with role-based access to dispute queues and settlement evidence.',
             archived: false
           },
           {
             id: 3,
-            name: 'Patient Onboarding Identity Workflow Prototype',
-            client: 'Care Delivery Services',
+            name: 'Merchant Staff Onboarding Identity Flow',
+            client: 'Summit Commerce Partners',
             status: 'Discovery',
             owner: 'Priya',
-            notes: 'Explores secure patient and workforce onboarding journeys for regulated environments.',
+            notes: 'Explores secure onboarding for store managers and finance teams across multi-location merchant organizations.',
             archived: false
           }
         ]
@@ -670,7 +670,7 @@
           project = state.projects.find(function (item) { return item.id === projectId; }) || null;
         }
         state.editingProjectId = project ? project.id : null;
-        document.getElementById('modal-title').textContent = project ? 'Edit project' : 'Add project';
+        document.getElementById('modal-title').textContent = project ? 'Edit merchant program' : 'Add merchant program';
         document.getElementById('project-id').value = project ? String(project.id) : '';
         document.getElementById('project-name').value = project ? project.name : '';
         document.getElementById('project-client').value = project ? project.client : '';
@@ -703,7 +703,7 @@
         var owner = document.getElementById('project-owner').value.trim();
         var notes = document.getElementById('project-notes').value.trim();
         if (!name || !client) {
-          showStatus('Project name and client are required.', 'warning');
+          showStatus('Program name and merchant are required.', 'warning');
           return;
         }
         if (id) {
@@ -715,7 +715,7 @@
             existing.owner = owner;
             existing.notes = notes;
             existing.archived = false;
-            showStatus('Project updated.');
+            showStatus('Merchant program updated.');
           }
         } else {
           var newId = state.projects.reduce(function (maxId, project) { return Math.max(maxId, project.id); }, 0) + 1;
@@ -728,7 +728,7 @@
             notes: notes,
             archived: false
           });
-          showStatus('Project added.');
+          showStatus('Merchant program added.');
         }
         closeProjectForm();
         renderProjects();
@@ -743,7 +743,7 @@
         if (!project) return;
         project.archived = true;
         renderProjects();
-        showStatus('Project archived.');
+        showStatus('Merchant program archived.');
       }
 
       function handleProjectTableClick(event) {
