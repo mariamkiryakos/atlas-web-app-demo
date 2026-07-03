@@ -3,140 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Merchant Operations Workspace</title>
+  <title>Atlas Web App</title>
   <style>
     :root {
       --artifact-background: var(--theme-background, #ffffff);
       --artifact-background-light: var(--theme-background-light, #f6f6f6);
-      --artifact-background-mid: var(--theme-background-mid, #eef3f2);
-      --artifact-border-light: var(--theme-border-light, #d9e2e0);
-      --artifact-border-dark: var(--theme-border-dark, #b9c8c4);
-      --artifact-primary-brand: var(--theme-primary-brand, #0f766e);
-      --artifact-primary-hover: var(--theme-primary-hover, #115e59);
-      --artifact-selected: var(--theme-selected, #dff3f0);
-      --artifact-text-primary: var(--theme-text-primary, #10231f);
-      --artifact-text-secondary: var(--theme-text-secondary, #55706a);
-      --artifact-viewer-bg: var(--artifact-selected);
-      --artifact-viewer-text: var(--artifact-primary-brand);
-      --artifact-editor-bg: var(--artifact-primary-brand);
-      --artifact-editor-text: var(--artifact-background);
-      --artifact-info-bg: var(--artifact-selected);
-      --artifact-info-text: var(--artifact-primary-brand);
-      --artifact-warn-bg: var(--artifact-background-light);
-      --artifact-warn-text: var(--artifact-text-primary);
-      --artifact-tag-live-bg: var(--artifact-selected);
-      --artifact-tag-live-text: var(--artifact-primary-brand);
-      --artifact-tag-review-bg: var(--artifact-background-light);
-      --artifact-tag-review-text: var(--artifact-text-primary);
-      --artifact-tag-ready-bg: var(--artifact-primary-brand);
-      --artifact-tag-ready-text: var(--artifact-background);
-      --artifact-overlay: rgba(8, 23, 20, 0.48);
-      --artifact-shell-accent: #d7ece8;
-      --artifact-shadow: 0 18px 40px rgba(8, 23, 20, 0.10);
+      --artifact-background-mid: var(--theme-background-mid, #f4f5f7);
+      --artifact-border-light: var(--theme-border-light, #e5e7eb);
+      --artifact-border-dark: var(--theme-border-dark, #d1d5db);
+      --artifact-primary-brand: var(--theme-primary-brand, #2563eb);
+      --artifact-primary-hover: var(--theme-primary-hover, #1d4ed8);
+      --artifact-text-primary: var(--theme-text-primary, #111827);
+      --artifact-text-secondary: var(--theme-text-secondary, #6b7280);
+      --artifact-selected: var(--theme-selected, #eef2ff);
+      --artifact-viewer-bg: #eef2ff;
+      --artifact-viewer-text: #3730a3;
+      --artifact-editor-bg: #ecfdf3;
+      --artifact-editor-text: #166534;
+      --artifact-info-bg: #edf6ff;
+      --artifact-info-text: #1d4ed8;
+      --artifact-warn-bg: #fff7ed;
+      --artifact-warn-text: #92400e;
+      --artifact-tag-flight-bg: #eef2ff;
+      --artifact-tag-flight-text: #3730a3;
+      --artifact-tag-design-bg: #ecfdf3;
+      --artifact-tag-design-text: #166534;
+      --artifact-tag-discovery-bg: #fff7ed;
+      --artifact-tag-discovery-text: #92400e;
+      --artifact-overlay: rgba(15, 23, 42, 0.45);
+      --artifact-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
     }
 
     html[data-theme='dark'] {
-      --artifact-viewer-bg: #123a36;
-      --artifact-viewer-text: #bce8e0;
-      --artifact-editor-bg: #13897f;
-      --artifact-editor-text: #f3fffd;
-      --artifact-info-bg: #113a35;
-      --artifact-info-text: #bce8e0;
-      --artifact-warn-bg: #2b3533;
-      --artifact-warn-text: #eef8f5;
-      --artifact-tag-live-bg: #123a36;
-      --artifact-tag-live-text: #bce8e0;
-      --artifact-tag-review-bg: #2b3533;
-      --artifact-tag-review-text: #eef8f5;
-      --artifact-tag-ready-bg: #13897f;
-      --artifact-tag-ready-text: #f3fffd;
-      --artifact-overlay: rgba(2, 10, 9, 0.72);
-      --artifact-shell-accent: #163f3a;
-      --artifact-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+      --artifact-viewer-bg: #1f2a5c;
+      --artifact-viewer-text: #dfe4ff;
+      --artifact-editor-bg: #12351f;
+      --artifact-editor-text: #d8f5df;
+      --artifact-info-bg: #102a43;
+      --artifact-info-text: #bfdbfe;
+      --artifact-warn-bg: #40220f;
+      --artifact-warn-text: #fde6c8;
+      --artifact-tag-flight-bg: #1f2a5c;
+      --artifact-tag-flight-text: #dfe4ff;
+      --artifact-tag-design-bg: #12351f;
+      --artifact-tag-design-text: #d8f5df;
+      --artifact-tag-discovery-bg: #40220f;
+      --artifact-tag-discovery-text: #fde6c8;
+      --artifact-overlay: rgba(2, 6, 23, 0.68);
+      --artifact-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(180deg, var(--artifact-shell-accent) 0%, var(--artifact-background-mid) 18%, var(--artifact-background-mid) 100%);
+      padding: 0;
+      background: var(--artifact-background-mid);
       color: var(--artifact-text-primary);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     .container {
-      max-width: 980px;
+      max-width: 900px;
       margin: 40px auto;
       background: var(--artifact-background);
-      border-radius: 16px;
-      padding: 32px;
+      border-radius: 8px;
+      padding: 24px 32px 32px;
       border: 1px solid var(--artifact-border-light);
       box-shadow: var(--artifact-shadow);
     }
 
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--artifact-background-light);
-      border: 1px solid var(--artifact-border-light);
-      color: var(--artifact-text-secondary);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
     h1 {
-      margin: 12px 0 0;
-      font-size: 30px;
-      line-height: 1.12;
+      margin: 0;
+      font-size: 24px;
       font-weight: 700;
-    }
-
-    .subtitle {
-      margin: 14px 0 0;
-      max-width: 640px;
-      color: var(--artifact-text-secondary);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .identity-panel {
-      min-width: 220px;
-      padding: 14px 16px;
-      border: 1px solid var(--artifact-border-light);
-      border-radius: 12px;
-      background: var(--artifact-background-light);
-    }
-
-    .identity-label {
-      margin: 0 0 10px;
-      font-size: 12px;
-      color: var(--artifact-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-weight: 600;
     }
 
     .mode-badge {
       display: inline-block;
-      padding: 6px 12px;
+      margin-top: 12px;
+      padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       background: var(--artifact-viewer-bg);
@@ -148,40 +96,15 @@
       color: var(--artifact-editor-text);
     }
 
-    .identity-hint {
-      margin: 10px 0 0;
-      color: var(--artifact-text-secondary);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .section-card {
-      border: 1px solid var(--artifact-border-light);
-      border-radius: 14px;
-      background: var(--artifact-background);
-      overflow: hidden;
-    }
-
-    .section-head {
-      padding: 18px 20px 0;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .section-copy {
-      margin: 8px 0 0;
+    .subtitle {
+      margin-top: 12px;
       color: var(--artifact-text-secondary);
       font-size: 14px;
       line-height: 1.5;
     }
 
     .toolbar {
-      margin: 18px 0 0;
-      padding: 0 20px 18px;
+      margin: 20px 0;
       display: flex;
       gap: 12px;
       align-items: center;
@@ -189,20 +112,14 @@
     }
 
     .btn {
-      border-radius: 10px;
+      border-radius: 6px;
       border: 1px solid transparent;
-      padding: 10px 16px;
+      padding: 8px 14px;
       font-size: 14px;
       cursor: pointer;
       background: var(--artifact-primary-brand);
       color: var(--artifact-background);
-      font-weight: 600;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-    }
-
-    .btn:hover:not(:disabled) {
-      background: var(--artifact-primary-hover);
-      transform: translateY(-1px);
+      font-weight: 500;
     }
 
     .btn.secondary {
@@ -211,21 +128,24 @@
       border-color: var(--artifact-border-dark);
     }
 
+    .btn:hover:not(:disabled) {
+      background: var(--artifact-primary-hover);
+    }
+
     .btn.secondary:hover:not(:disabled) {
       background: var(--artifact-background-light);
     }
 
     .btn:disabled {
-      opacity: 0.58;
+      opacity: 0.6;
       cursor: default;
-      transform: none;
     }
 
     .status-banner {
       display: none;
-      margin: 18px 20px 0;
-      padding: 11px 12px;
-      border-radius: 10px;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 8px;
       background: var(--artifact-info-bg);
       color: var(--artifact-info-text);
       font-size: 13px;
@@ -234,11 +154,11 @@
     .status-banner.warning {
       background: var(--artifact-warn-bg);
       color: var(--artifact-warn-text);
-      border: 1px solid var(--artifact-border-light);
     }
 
-    .table-wrap {
-      padding: 10px 20px 22px;
+    h3 {
+      margin: 20px 0 8px;
+      font-size: 20px;
     }
 
     table {
@@ -249,7 +169,7 @@
     }
 
     th, td {
-      padding: 14px 12px;
+      padding: 10px;
       border-bottom: 1px solid var(--artifact-border-light);
       text-align: left;
       vertical-align: middle;
@@ -257,41 +177,39 @@
 
     th {
       background: var(--artifact-background-light);
+      font-weight: 600;
+      font-size: 13px;
       color: var(--artifact-text-secondary);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
     }
 
     .tag {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 2px 8px;
       border-radius: 999px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: 0.03em;
       text-transform: uppercase;
     }
 
-    .tag.live {
-      background: var(--artifact-tag-live-bg);
-      color: var(--artifact-tag-live-text);
+    .tag.in-flight {
+      background: var(--artifact-tag-flight-bg);
+      color: var(--artifact-tag-flight-text);
     }
 
-    .tag.review {
-      background: var(--artifact-tag-review-bg);
-      color: var(--artifact-tag-review-text);
+    .tag.design {
+      background: var(--artifact-tag-design-bg);
+      color: var(--artifact-tag-design-text);
     }
 
-    .tag.ready {
-      background: var(--artifact-tag-ready-bg);
-      color: var(--artifact-tag-ready-text);
+    .tag.discovery {
+      background: var(--artifact-tag-discovery-bg);
+      color: var(--artifact-tag-discovery-text);
     }
 
     .actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       flex-wrap: wrap;
     }
@@ -304,7 +222,6 @@
       color: var(--artifact-primary-brand);
       cursor: pointer;
       font-size: 13px;
-      font-weight: 600;
     }
 
     .action-link.muted {
@@ -313,24 +230,20 @@
     }
 
     .claims-panel {
-      margin-top: 22px;
-      padding: 16px 18px;
-      border-radius: 14px;
+      margin-top: 24px;
+      padding: 12px 14px;
+      border-radius: 8px;
       background: var(--artifact-background-light);
-      border: 1px solid var(--artifact-border-light);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size: 13px;
       color: var(--artifact-text-primary);
+      border: 1px solid var(--artifact-border-light);
     }
 
     .claims-panel-title {
-      margin-bottom: 8px;
+      font-weight: 600;
+      margin-bottom: 6px;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--artifact-text-secondary);
     }
 
     .muted {
@@ -339,10 +252,9 @@
 
     .empty-state {
       display: none;
-      margin-top: 8px;
-      padding: 18px;
+      padding: 16px;
       border: 1px dashed var(--artifact-border-dark);
-      border-radius: 12px;
+      border-radius: 8px;
       color: var(--artifact-text-secondary);
       font-size: 14px;
       background: var(--artifact-background-light);
@@ -360,17 +272,17 @@
     }
 
     .modal {
-      width: min(700px, 100%);
+      width: min(620px, 100%);
       background: var(--artifact-background);
       border: 1px solid var(--artifact-border-light);
-      border-radius: 18px;
+      border-radius: 8px;
       overflow: hidden;
       box-shadow: var(--artifact-shadow);
     }
 
     .modal-head,
     .modal-actions {
-      padding: 18px 20px;
+      padding: 16px 18px;
       border-bottom: 1px solid var(--artifact-border-light);
     }
 
@@ -384,7 +296,7 @@
 
     .modal-title {
       margin: 0 0 6px;
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .modal-copy {
@@ -395,9 +307,9 @@
     }
 
     .modal-body {
-      padding: 20px;
+      padding: 18px;
       display: grid;
-      gap: 16px;
+      gap: 14px;
       background: var(--artifact-background-light);
     }
 
@@ -418,7 +330,7 @@
 
     .field label {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--artifact-text-primary);
     }
 
@@ -427,15 +339,15 @@
     .field textarea {
       width: 100%;
       border: 1px solid var(--artifact-border-dark);
-      border-radius: 10px;
+      border-radius: 6px;
       background: var(--artifact-background);
       color: var(--artifact-text-primary);
-      padding: 11px 12px;
+      padding: 10px 12px;
       font: inherit;
     }
 
     .field textarea {
-      min-height: 108px;
+      min-height: 96px;
       resize: vertical;
     }
 
@@ -447,14 +359,8 @@
 
     @media screen and (max-width: 760px) {
       .container {
-        margin: 18px;
-        padding: 20px;
-      }
-      .hero {
-        flex-direction: column;
-      }
-      .identity-panel {
-        width: 100%;
+        margin: 16px;
+        padding: 18px;
       }
       .form-grid {
         grid-template-columns: 1fr;
@@ -529,111 +435,91 @@
 </head>
 <body>
   <div class="container">
-    <div class="hero">
-      <div>
-        <div class="eyebrow">Secure internal workspace</div>
-        <h1>Merchant Operations Workspace</h1>
-        <p class="subtitle">
-          A simple internal portal for merchant operations, support, risk, and service teams.
-          Access is adjusted automatically from the signed-in employee token so the same experience can support read-only and editor sessions.
-        </p>
-      </div>
-      <div class="identity-panel">
-        <p class="identity-label">Current access</p>
-        <div id="mode-pill" class="mode-badge"><span id="mode-text">Viewer mode</span></div>
-        <p class="identity-hint">Use the refresh action if you sign in again and want to re-read the current token roles.</p>
-      </div>
+    <h1>Atlas Web App</h1>
+    <div id="mode-pill" class="mode-badge">
+      <span id="mode-text">VIEWER MODE</span>
+    </div>
+    <p class="subtitle">
+      Welcome, user. This page will adjust capabilities based on your <code>atlas_roles</code> claim.
+      The project list is framed for a healthcare and pharma delivery environment.
+    </p>
+
+    <div class="toolbar">
+      <button id="btn-add-project" class="btn" disabled>Add project</button>
+      <button id="btn-refresh" class="btn secondary">Refresh roles from token</button>
     </div>
 
-    <section class="section-card">
-      <div class="section-head">
-        <h2 class="section-title">Active initiatives</h2>
-        <p class="section-copy">Track internal workstreams that support merchant onboarding, service quality, employee enablement, and operational controls.</p>
-      </div>
-      <div class="toolbar">
-        <button id="btn-add-project" class="btn" disabled>Add initiative</button>
-        <button id="btn-refresh" class="btn secondary">Refresh roles from token</button>
-      </div>
+    <div id="status-banner" class="status-banner"></div>
 
-      <div id="status-banner" class="status-banner"></div>
-
-      <div class="table-wrap">
-        <div id="projects-empty" class="empty-state">No active initiatives yet.</div>
-        <table id="projects-table">
-          <thead>
-            <tr>
-              <th>Initiative</th>
-              <th>Business unit</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="projects-body"></tbody>
-        </table>
-      </div>
-    </section>
+    <h3>Active projects</h3>
+    <div id="projects-empty" class="empty-state">No active projects yet.</div>
+    <table id="projects-table">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Client</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="projects-body"></tbody>
+    </table>
 
     <div class="claims-panel">
       <div class="claims-panel-title">Decoded token claims</div>
       <div><span class="muted">atlas_roles:</span> <span id="atlas-roles-text" class="muted">(no claims found – check id_token in URL)</span></div>
+      <div><span class="muted">issuer:</span> <span id="issuer-text" class="muted">(no token yet)</span></div>
+      <div><span class="muted">auth target:</span> <span id="auth-target-text" class="muted">(not initialised)</span></div>
     </div>
   </div>
 
   <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-head">
-        <h3 id="modal-title" class="modal-title">Add initiative</h3>
-        <p class="modal-copy">Create or update an internal record. Only editor sessions can save changes.</p>
+        <h3 id="modal-title" class="modal-title">Add project</h3>
+        <p class="modal-copy">Create or update a project record. Only Atlas-Editor sessions can save changes.</p>
       </div>
       <div class="modal-body">
         <form id="project-form">
           <input type="hidden" id="project-id" />
           <div class="form-grid">
             <div class="field">
-              <label for="project-name">Initiative name</label>
+              <label for="project-name">Project name</label>
               <input id="project-name" name="projectName" required />
             </div>
             <div class="field">
-              <label for="project-client">Business unit</label>
+              <label for="project-client">Client</label>
               <input id="project-client" name="client" required />
             </div>
             <div class="field">
               <label for="project-status">Status</label>
               <select id="project-status" name="status">
-                <option>Live</option>
-                <option>In review</option>
-                <option>Ready</option>
+                <option>In flight</option>
+                <option>Design</option>
+                <option>Discovery</option>
               </select>
             </div>
             <div class="field">
               <label for="project-owner">Owner</label>
-              <input id="project-owner" name="owner" placeholder="Alex" />
+              <input id="project-owner" name="owner" placeholder="Priya" />
             </div>
             <div class="field full">
               <label for="project-notes">Notes</label>
-              <textarea id="project-notes" name="notes" placeholder="Add a short internal note for the demo."></textarea>
+              <textarea id="project-notes" name="notes" placeholder="Add a short delivery note for the demo."></textarea>
             </div>
           </div>
-          <p class="helper">Records are stored in browser memory in this demo build, so a page refresh resets changes.</p>
+          <p class="helper">Projects are stored in browser memory in this demo build, so a page refresh resets changes.</p>
         </form>
       </div>
       <div class="modal-actions">
         <button id="btn-cancel" type="button" class="btn secondary">Cancel</button>
-        <button id="btn-save" type="submit" form="project-form" class="btn">Save initiative</button>
+        <button id="btn-save" type="submit" form="project-form" class="btn">Save project</button>
       </div>
     </div>
   </div>
 
   <script>
     (function () {
-      var AUTH_CONFIG = {
-        authorizeUrl: 'https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize',
-        clientId: 'AtlasWebApp',
-        scope: 'openid profile email atlas',
-        roleClaim: 'atlas_roles',
-        editorRole: 'Atlas-Editor'
-      };
-
       var state = {
         mode: 'viewer',
         atlasRoles: [],
@@ -641,29 +527,29 @@
         projects: [
           {
             id: 1,
-            name: 'Merchant onboarding access review',
-            client: 'Operations',
-            status: 'Live',
-            owner: 'Alex',
-            notes: 'Supports employee access review steps across onboarding and servicing workflows.',
+            name: 'Clinical Trial Identity Governance Dashboard',
+            client: 'Healthcare Operations',
+            status: 'In flight',
+            owner: 'Priya',
+            notes: 'Tracks access oversight and identity approval workflows for research teams.',
             archived: false
           },
           {
             id: 2,
-            name: 'Chargeback exception handling workflow',
-            client: 'Risk',
-            status: 'In review',
-            owner: 'Jordan',
-            notes: 'Coordinates review steps for employee handling of settlement and dispute exceptions.',
+            name: 'Pharmacy Inventory Access Review Portal',
+            client: 'Pharma Supply Management',
+            status: 'Design',
+            owner: 'Priya',
+            notes: 'Supports periodic access review and exception handling for controlled inventory processes.',
             archived: false
           },
           {
             id: 3,
-            name: 'Support knowledge approval tracker',
-            client: 'Service',
-            status: 'Ready',
-            owner: 'Taylor',
-            notes: 'Tracks internal guidance updates for merchant-facing support teams.',
+            name: 'Patient Onboarding Identity Workflow Prototype',
+            client: 'Care Delivery Services',
+            status: 'Discovery',
+            owner: 'Priya',
+            notes: 'Explores secure patient and workforce onboarding journeys for regulated environments.',
             archived: false
           }
         ]
@@ -671,7 +557,9 @@
 
       function getHashParams() {
         var hash = window.location.hash || '';
-        if (hash.charAt(0) === '#') hash = hash.substring(1);
+        if (hash.charAt(0) === '#') {
+          hash = hash.substring(1);
+        }
         return new URLSearchParams(hash);
       }
 
@@ -701,10 +589,10 @@
 
       function getStatusClass(status) {
         var value = (status || '').toLowerCase();
-        if (value === 'live') return 'live';
-        if (value === 'in review') return 'review';
-        if (value === 'ready') return 'ready';
-        return 'review';
+        if (value === 'in flight') return 'in-flight';
+        if (value === 'design') return 'design';
+        if (value === 'discovery') return 'discovery';
+        return 'in-flight';
       }
 
       function escapeHtml(value) {
@@ -730,13 +618,13 @@
 
       function setModeFromRoles(atlasRoles) {
         state.atlasRoles = Array.isArray(atlasRoles) ? atlasRoles : [];
-        state.mode = state.atlasRoles.indexOf(AUTH_CONFIG.editorRole) !== -1 ? 'editor' : 'viewer';
+        state.mode = state.atlasRoles.indexOf('Atlas-Editor') !== -1 ? 'editor' : 'viewer';
         var modePill = document.getElementById('mode-pill');
         var modeText = document.getElementById('mode-text');
         var rolesText = document.getElementById('atlas-roles-text');
         var btnAdd = document.getElementById('btn-add-project');
         if (modePill) modePill.classList.toggle('editor', isEditor());
-        if (modeText) modeText.textContent = isEditor() ? 'Editor mode' : 'Viewer mode';
+        if (modeText) modeText.textContent = isEditor() ? 'EDITOR MODE' : 'VIEWER MODE';
         if (rolesText) rolesText.textContent = state.atlasRoles.length ? JSON.stringify(state.atlasRoles) : '(no atlas_roles claim found)';
         if (btnAdd) btnAdd.disabled = !isEditor();
         renderProjects();
@@ -774,7 +662,7 @@
 
       function openProjectForm(projectId) {
         if (!isEditor()) {
-          showStatus('This session is read-only. Sign in with an editor role to make changes.', 'warning');
+          showStatus('This session is read-only. Switch back to Atlas-Editor to make changes.', 'warning');
           return;
         }
         var project = null;
@@ -782,12 +670,12 @@
           project = state.projects.find(function (item) { return item.id === projectId; }) || null;
         }
         state.editingProjectId = project ? project.id : null;
-        document.getElementById('modal-title').textContent = project ? 'Edit initiative' : 'Add initiative';
+        document.getElementById('modal-title').textContent = project ? 'Edit project' : 'Add project';
         document.getElementById('project-id').value = project ? String(project.id) : '';
         document.getElementById('project-name').value = project ? project.name : '';
         document.getElementById('project-client').value = project ? project.client : '';
-        document.getElementById('project-status').value = project ? project.status : 'Live';
-        document.getElementById('project-owner').value = project ? (project.owner || '') : 'Alex';
+        document.getElementById('project-status').value = project ? project.status : 'In flight';
+        document.getElementById('project-owner').value = project ? (project.owner || '') : 'Priya';
         document.getElementById('project-notes').value = project ? (project.notes || '') : '';
         document.getElementById('modal-backdrop').style.display = 'flex';
         document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'false');
@@ -799,7 +687,7 @@
         document.getElementById('modal-backdrop').setAttribute('aria-hidden', 'true');
         state.editingProjectId = null;
         document.getElementById('project-form').reset();
-        document.getElementById('project-status').value = 'Live';
+        document.getElementById('project-status').value = 'In flight';
       }
 
       function saveProject(event) {
@@ -815,7 +703,7 @@
         var owner = document.getElementById('project-owner').value.trim();
         var notes = document.getElementById('project-notes').value.trim();
         if (!name || !client) {
-          showStatus('Initiative name and business unit are required.', 'warning');
+          showStatus('Project name and client are required.', 'warning');
           return;
         }
         if (id) {
@@ -827,7 +715,7 @@
             existing.owner = owner;
             existing.notes = notes;
             existing.archived = false;
-            showStatus('Initiative updated.');
+            showStatus('Project updated.');
           }
         } else {
           var newId = state.projects.reduce(function (maxId, project) { return Math.max(maxId, project.id); }, 0) + 1;
@@ -840,7 +728,7 @@
             notes: notes,
             archived: false
           });
-          showStatus('Initiative added.');
+          showStatus('Project added.');
         }
         closeProjectForm();
         renderProjects();
@@ -848,14 +736,14 @@
 
       function archiveProject(projectId) {
         if (!isEditor()) {
-          showStatus('This session is read-only. Records cannot be archived.', 'warning');
+          showStatus('This session is read-only. Projects cannot be archived.', 'warning');
           return;
         }
         var project = state.projects.find(function (item) { return item.id === projectId; });
         if (!project) return;
         project.archived = true;
         renderProjects();
-        showStatus('Initiative archived.');
+        showStatus('Project archived.');
       }
 
       function handleProjectTableClick(event) {
@@ -879,10 +767,10 @@
         if (addBtn) addBtn.addEventListener('click', function () { openProjectForm(null); });
         if (refreshBtn) {
           refreshBtn.addEventListener('click', function () {
-            var params = getHashParams();
-            var token = params.get('id_token');
-            var claims = parseJwt(token) || {};
-            setModeFromRoles(claims[AUTH_CONFIG.roleClaim] || []);
+            var p = getHashParams();
+            var t = p.get('id_token');
+            var c = parseJwt(t) || {};
+            applyClaims(c);
             showStatus('Roles refreshed from the current token.');
           });
         }
@@ -901,8 +789,38 @@
         if (tableBody) tableBody.addEventListener('click', handleProjectTableClick);
       }
 
+      var AUTH_CONFIG = {
+        tenantHost: 'openam-wf-mk.forgeblocks.com',
+        authorizeUrl: 'https://openam-wf-mk.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize',
+        clientId: 'AtlasWebApp',
+        scope: 'openid profile email atlas'
+      };
+
+      function updateAuthDiagnostics(claims) {
+        var issuerText = document.getElementById('issuer-text');
+        var authTargetText = document.getElementById('auth-target-text');
+        if (issuerText) issuerText.textContent = (claims && claims.iss) || '(no iss claim found)';
+        if (authTargetText) authTargetText.textContent = AUTH_CONFIG.authorizeUrl + ' | client_id=' + AUTH_CONFIG.clientId;
+      }
+
+      function applyClaims(claims) {
+        claims = claims || {};
+        updateAuthDiagnostics(claims);
+        setModeFromRoles(claims.atlas_roles || []);
+        if (claims.iss && claims.iss.indexOf(AUTH_CONFIG.tenantHost) === -1) {
+          showStatus('The returned token issuer does not match the wf-mk tenant. Check the AIC application configuration.', 'warning');
+        }
+      }
+
       function startLoginIfNeeded() {
         var params = getHashParams();
+        var error = params.get('error');
+        var errorDescription = params.get('error_description');
+        updateAuthDiagnostics(null);
+        if (error) {
+          showStatus('Sign-in error from the identity tenant: ' + error + (errorDescription ? ' — ' + errorDescription : ''), 'warning');
+          return null;
+        }
         var idToken = params.get('id_token');
         if (idToken) return idToken;
         var authUrl = new URL(AUTH_CONFIG.authorizeUrl);
@@ -921,11 +839,12 @@
       var idToken = startLoginIfNeeded();
       if (!idToken) return;
       var claims = parseJwt(idToken) || {};
-      setModeFromRoles(claims[AUTH_CONFIG.roleClaim] || []);
+      applyClaims(claims);
     })();
   </script>
 
   <script>
+
     function prepareChartsForPrint() {
       document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
         var chart = echarts.getInstanceByDom(el);
