@@ -88,7 +88,7 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       background: var(--artifact-viewer-bg);
-      color: var(--artifact-viewer-text);
+      color:var(--artifact-viewer-text);
     }
 
     .mode-badge.editor {
@@ -109,6 +109,62 @@
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
+    }
+
+    .tenant-bar {
+      margin: 18px 0 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--artifact-border-light);
+      border-radius: 8px;
+      background: var(--artifact-background-light);
+      display: grid;
+      gap: 10px;
+    }
+
+    .tenant-row {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .tenant-field {
+      display: grid;
+      gap: 6px;
+      min-width: 220px;
+      flex: 1 1 240px;
+    }
+
+    .tenant-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--artifact-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tenant-field select {
+      width: 100%;
+      border: 1px solid var(--artifact-border-dark);
+      border-radius: 6px;
+      background: var(--artifact-background);
+      color: var(--artifact-text-primary);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .tenant-summary {
+      font-size: 13px;
+      color: var(--artifact-text-secondary);
+      line-height: 1.5;
+    }
+
+    .tenant-summary code {
+      color: var(--artifact-text-primary);
+    }
+
+    .tenant-bar.compact .tenant-row {
+      display: none;
     }
 
     .btn {
@@ -444,6 +500,18 @@
       The project list is framed for a healthcare and pharma delivery environment.
     </p>
 
+    <div class="tenant-bar">
+      <div class="tenant-row">
+        <div class="tenant-field">
+          <label for="tenant-select">Tenant profile</label>
+          <select id="tenant-select"></select>
+        </div>
+        <button id="btn-switch-tenant" class="btn secondary" type="button">Sign in / switch tenant</button>
+        <button id="btn-open-tenant-settings" class="btn secondary" type="button">Tenant settings</button>
+      </div>
+      <div id="tenant-summary" class="tenant-summary">Choose a tenant profile, or launch with <code>?tenant=profile-key</code>.</div>
+    </div>
+
     <div class="toolbar">
       <button id="btn-add-project" class="btn" disabled>Add project</button>
       <button id="btn-refresh" class="btn secondary">Refresh roles from token</button>
@@ -516,12 +584,78 @@
     </div>
   </div>
 
+
+  <div id="tenant-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tenant-modal-title">
+      <div class="modal-head">
+        <h3 id="tenant-modal-title" class="modal-title">Tenant settings</h3>
+        <p class="modal-copy">Save reusable tenant profiles for direct access, or launch with <code>?tenant=profile-key</code> from AIC.</p>
+      </div>
+      <div class="modal-body">
+        <form id="tenant-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="tenant-key">Profile key</label>
+              <input id="tenant-key" name="tenantKey" placeholder="uki-wf" required />
+            </div>
+            <div class="field">
+              <label for="tenant-label">Display name</label>
+              <input id="tenant-label" name="tenantLabel" placeholder="UKI WF" required />
+            </div>
+            <div class="field full">
+              <label for="tenant-authorize-url">Authorize URL</label>
+              <input id="tenant-authorize-url" name="tenantAuthorizeUrl" placeholder="https://.../authorize" required />
+            </div>
+            <div class="field">
+              <label for="tenant-client-id">Client ID</label>
+              <input id="tenant-client-id" name="tenantClientId" placeholder="AtlasWebApp" required />
+            </div>
+            <div class="field">
+              <label for="tenant-scope">Scope</label>
+              <input id="tenant-scope" name="tenantScope" value="openid profile email atlas" />
+            </div>
+            <div class="field">
+              <label for="tenant-role-claim">Role claim</label>
+              <input id="tenant-role-claim" name="tenantRoleClaim" value="atlas_roles" />
+            </div>
+          </div>
+          <p class="helper">Profiles are saved in this browser only. Launch URLs with <code>?tenant=...</code> take precedence on first load.</p>
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-delete-tenant" type="button" class="btn secondary">Delete saved profile</button>
+        <button id="btn-close-tenant-settings" type="button" class="btn secondary">Close</button>
+        <button id="btn-save-tenant-settings" type="submit" form="tenant-form" class="btn">Save tenant</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
+      var STORAGE_PROFILES = 'atlasTenantProfiles';
+      var STORAGE_SELECTED = 'atlasSelectedTenant';
+      var STORAGE_UI_MODE = 'atlasTenantUiMode';
+      var BUILTIN_PROFILES = {
+        'uki-wf': {
+          key: 'uki-wf',
+          label: 'UKI WF',
+          authorizeUrl: 'https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize',
+          clientId: 'AtlasWebApp',
+          scope: 'openid profile email atlas',
+          roleClaim: 'atlas_roles',
+          builtin: true
+        }
+      };
+
       var state = {
         mode: 'viewer',
         atlasRoles: [],
         editingProjectId: null,
+        tenantProfiles: {},
+        activeTenantKey: '',
+        activeTenantConfig: null,
+        tenantSource: 'default',
+        tenantUiMode: 'full',
         projects: [
           {
             id: 1,
@@ -555,10 +689,12 @@
 
       function getHashParams() {
         var hash = window.location.hash || '';
-        if (hash.charAt(0) === '#') {
-          hash = hash.substring(1);
-        }
+        if (hash.charAt(0) === '#') hash = hash.substring(1);
         return new URLSearchParams(hash);
+      }
+
+      function getSearchParams() {
+        return new URLSearchParams(window.location.search || '');
       }
 
       function parseJwt(token) {
@@ -579,6 +715,234 @@
         } catch (e) {
           return null;
         }
+      }
+
+      function safeLocalStorageGet(key) {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function safeLocalStorageSet(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function normalizeProfile(key, profile, builtin) {
+        key = String(key || '').trim();
+        if (!key || !profile) return null;
+        return {
+          key: key,
+          label: String(profile.label || key).trim(),
+          authorizeUrl: String(profile.authorizeUrl || '').trim(),
+          clientId: String(profile.clientId || '').trim(),
+          scope: String(profile.scope || 'openid profile email atlas').trim(),
+          roleClaim: String(profile.roleClaim || 'atlas_roles').trim(),
+          builtin: !!builtin
+        };
+      }
+
+      function getStoredProfiles() {
+        var raw = safeLocalStorageGet(STORAGE_PROFILES);
+        if (!raw) return {};
+        try {
+          var parsed = JSON.parse(raw);
+          var normalized = {};
+          Object.keys(parsed || {}).forEach(function (key) {
+            var profile = normalizeProfile(key, parsed[key], false);
+            if (profile) normalized[key] = profile;
+          });
+          return normalized;
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveStoredProfiles(profiles) {
+        safeLocalStorageSet(STORAGE_PROFILES, JSON.stringify(profiles || {}));
+      }
+
+      function getMergedProfiles() {
+        var merged = {};
+        Object.keys(BUILTIN_PROFILES).forEach(function (key) {
+          var profile = normalizeProfile(key, BUILTIN_PROFILES[key], true);
+          if (profile) merged[key] = profile;
+        });
+        var stored = getStoredProfiles();
+        Object.keys(stored).forEach(function (key) {
+          var profile = normalizeProfile(key, stored[key], false);
+          if (profile) merged[key] = profile;
+        });
+        return merged;
+      }
+
+      function normalizeRoleValues(rawValue) {
+        if (Array.isArray(rawValue)) {
+          return rawValue.map(function (value) { return String(value); }).filter(Boolean);
+        }
+        if (typeof rawValue === 'string') {
+          var trimmed = rawValue.trim();
+          if (!trimmed) return [];
+          if (trimmed.indexOf(',') !== -1) {
+            return trimmed.split(',').map(function (value) { return value.trim(); }).filter(Boolean);
+          }
+          return [trimmed];
+        }
+        return [];
+      }
+
+      function getRoleClaimName() {
+        return (state.activeTenantConfig && state.activeTenantConfig.roleClaim) || 'atlas_roles';
+      }
+
+      function setTenantUiMode(mode) {
+        state.tenantUiMode = mode === 'compact' ? 'compact' : 'full';
+        safeLocalStorageSet(STORAGE_UI_MODE, state.tenantUiMode);
+        var bar = document.querySelector('.tenant-bar');
+        if (bar) bar.classList.toggle('compact', state.tenantUiMode === 'compact');
+      }
+
+      function resolveTenantContext(preferredKey) {
+        state.tenantProfiles = getMergedProfiles();
+        var queryTenant = getSearchParams().get('tenant');
+        var savedTenant = safeLocalStorageGet(STORAGE_SELECTED);
+        var keys = Object.keys(state.tenantProfiles);
+        var key = '';
+        var source = 'default';
+
+        if (queryTenant && state.tenantProfiles[queryTenant]) {
+          key = queryTenant;
+          source = 'url';
+        } else if (preferredKey && state.tenantProfiles[preferredKey]) {
+          key = preferredKey;
+          source = 'saved';
+        } else if (savedTenant && state.tenantProfiles[savedTenant]) {
+          key = savedTenant;
+          source = 'saved';
+        } else if (keys.length) {
+          key = keys[0];
+          source = 'default';
+        }
+
+        state.activeTenantKey = key;
+        state.activeTenantConfig = key ? state.tenantProfiles[key] : null;
+        state.tenantSource = source;
+        if (key) safeLocalStorageSet(STORAGE_SELECTED, key);
+      }
+
+      function renderTenantOptions() {
+        var select = document.getElementById('tenant-select');
+        if (!select) return;
+        var profiles = state.tenantProfiles;
+        var keys = Object.keys(profiles);
+        select.innerHTML = keys.map(function (key) {
+          var profile = profiles[key];
+          return '<option value="' + escapeHtml(key) + '">' + escapeHtml(profile.label + ' (' + key + ')') + '</option>';
+        }).join('');
+        if (state.activeTenantKey && profiles[state.activeTenantKey]) {
+          select.value = state.activeTenantKey;
+        }
+        updateTenantSummary();
+      }
+
+      function updateTenantSummary() {
+        var summary = document.getElementById('tenant-summary');
+        if (!summary) return;
+        if (!state.activeTenantConfig) {
+          summary.innerHTML = 'No tenant profile is configured yet. Open <code>Tenant settings</code> to save one.';
+          return;
+        }
+        var sourceText = 'Default profile';
+        if (state.tenantSource === 'url') sourceText = 'Launch URL selected profile';
+        if (state.tenantSource === 'saved') sourceText = 'Saved browser preference';
+        summary.innerHTML = sourceText + ': <code>' + escapeHtml(state.activeTenantKey) + '</code> using client <code>' + escapeHtml(state.activeTenantConfig.clientId) + '</code>. URL <code>?tenant=...</code> overrides the dropdown on first load.';
+      }
+
+      function openTenantSettings() {
+        populateTenantForm(state.activeTenantKey);
+        document.getElementById('tenant-modal-backdrop').style.display = 'flex';
+        document.getElementById('tenant-modal-backdrop').setAttribute('aria-hidden', 'false');
+        document.getElementById('tenant-key').focus();
+      }
+
+      function closeTenantSettings() {
+        document.getElementById('tenant-modal-backdrop').style.display = 'none';
+        document.getElementById('tenant-modal-backdrop').setAttribute('aria-hidden', 'true');
+      }
+
+      function populateTenantForm(key) {
+        var stored = getStoredProfiles();
+        var profile = state.tenantProfiles[key] || state.activeTenantConfig || normalizeProfile('', {}, false);
+        document.getElementById('tenant-key').value = profile ? profile.key || '' : '';
+        document.getElementById('tenant-label').value = profile ? profile.label || '' : '';
+        document.getElementById('tenant-authorize-url').value = profile ? profile.authorizeUrl || '' : '';
+        document.getElementById('tenant-client-id').value = profile ? profile.clientId || '' : '';
+        document.getElementById('tenant-scope').value = profile ? profile.scope || 'openid profile email atlas' : 'openid profile email atlas';
+        document.getElementById('tenant-role-claim').value = profile ? profile.roleClaim || 'atlas_roles' : 'atlas_roles';
+        document.getElementById('btn-delete-tenant').disabled = !(profile && stored[profile.key]);
+      }
+
+      function saveTenantProfile(event) {
+        event.preventDefault();
+        var key = document.getElementById('tenant-key').value.trim().toLowerCase().replace(/\s+/g, '-');
+        var label = document.getElementById('tenant-label').value.trim();
+        var authorizeUrl = document.getElementById('tenant-authorize-url').value.trim();
+        var clientId = document.getElementById('tenant-client-id').value.trim();
+        var scope = document.getElementById('tenant-scope').value.trim() || 'openid profile email atlas';
+        var roleClaim = document.getElementById('tenant-role-claim').value.trim() || 'atlas_roles';
+        if (!key || !label || !authorizeUrl || !clientId) {
+          showStatus('Profile key, label, authorize URL, and client ID are required.', 'warning');
+          return;
+        }
+        var stored = getStoredProfiles();
+        stored[key] = {
+          key: key,
+          label: label,
+          authorizeUrl: authorizeUrl,
+          clientId: clientId,
+          scope: scope,
+          roleClaim: roleClaim
+        };
+        saveStoredProfiles(stored);
+        resolveTenantContext(key);
+        renderTenantOptions();
+        closeTenantSettings();
+        showStatus('Tenant profile saved.');
+      }
+
+      function deleteTenantProfile() {
+        var key = document.getElementById('tenant-key').value.trim();
+        var stored = getStoredProfiles();
+        if (!key || !stored[key]) {
+          showStatus('Only custom saved profiles can be deleted.', 'warning');
+          return;
+        }
+        delete stored[key];
+        saveStoredProfiles(stored);
+        resolveTenantContext(state.activeTenantKey === key ? '' : state.activeTenantKey);
+        renderTenantOptions();
+        closeTenantSettings();
+        showStatus('Tenant profile deleted.');
+      }
+
+      function beginAuthorization(config) {
+        if (!config || !config.authorizeUrl || !config.clientId) {
+          showStatus('Choose or configure a tenant profile before signing in.', 'warning');
+          return;
+        }
+        var authUrl = new URL(config.authorizeUrl);
+        authUrl.searchParams.set('client_id', config.clientId);
+        authUrl.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
+        authUrl.searchParams.set('response_type', 'id_token');
+        authUrl.searchParams.set('scope', config.scope || 'openid profile email atlas');
+        authUrl.searchParams.set('nonce', (window.crypto && crypto.randomUUID && crypto.randomUUID()) || String(Date.now()));
+        authUrl.searchParams.set('state', 'atlas_' + Date.now());
+        window.location.replace(authUrl.toString());
       }
 
       function isEditor() {
@@ -611,10 +975,11 @@
         window.clearTimeout(showStatus._timer);
         showStatus._timer = window.setTimeout(function () {
           el.style.display = 'none';
-        }, 2800);
+        }, 3200);
       }
 
-      function setModeFromRoles(atlasRoles) {
+      function setModeFromRoles(atlasRoles, claimName) {
+        claimName = claimName || getRoleClaimName();
         state.atlasRoles = Array.isArray(atlasRoles) ? atlasRoles : [];
         state.mode = state.atlasRoles.indexOf('Atlas-Editor') !== -1 ? 'editor' : 'viewer';
         var modePill = document.getElementById('mode-pill');
@@ -623,9 +988,18 @@
         var btnAdd = document.getElementById('btn-add-project');
         if (modePill) modePill.classList.toggle('editor', isEditor());
         if (modeText) modeText.textContent = isEditor() ? 'EDITOR MODE' : 'VIEWER MODE';
-        if (rolesText) rolesText.textContent = state.atlasRoles.length ? JSON.stringify(state.atlasRoles) : '(no atlas_roles claim found)';
+        if (rolesText) rolesText.textContent = state.atlasRoles.length ? JSON.stringify(state.atlasRoles) : '(no ' + claimName + ' claim found)';
         if (btnAdd) btnAdd.disabled = !isEditor();
         renderProjects();
+      }
+
+      function refreshFromCurrentToken(showMessage) {
+        var params = getHashParams();
+        var token = params.get('id_token');
+        var claims = parseJwt(token) || {};
+        var roles = normalizeRoleValues(claims[getRoleClaimName()]);
+        setModeFromRoles(roles, getRoleClaimName());
+        if (showMessage) showStatus('Roles refreshed from the current token.');
       }
 
       function getActiveProjects() {
@@ -754,6 +1128,20 @@
         if (action === 'archive') archiveProject(id);
       }
 
+      function handleTenantSwitch() {
+        var select = document.getElementById('tenant-select');
+        var key = select ? select.value : '';
+        if (!key || !state.tenantProfiles[key]) {
+          showStatus('Choose a tenant profile first.', 'warning');
+          return;
+        }
+        setTenantUiMode('full');
+        safeLocalStorageSet(STORAGE_SELECTED, key);
+        resolveTenantContext(key);
+        renderTenantOptions();
+        beginAuthorization(state.activeTenantConfig);
+      }
+
       function bindEvents() {
         var addBtn = document.getElementById('btn-add-project');
         var refreshBtn = document.getElementById('btn-refresh');
@@ -761,59 +1149,98 @@
         var backdrop = document.getElementById('modal-backdrop');
         var form = document.getElementById('project-form');
         var tableBody = document.getElementById('projects-body');
+        var switchTenantBtn = document.getElementById('btn-switch-tenant');
+        var tenantSettingsBtn = document.getElementById('btn-open-tenant-settings');
+        var tenantCloseBtn = document.getElementById('btn-close-tenant-settings');
+        var tenantDeleteBtn = document.getElementById('btn-delete-tenant');
+        var tenantForm = document.getElementById('tenant-form');
+        var tenantBackdrop = document.getElementById('tenant-modal-backdrop');
+        var tenantSelect = document.getElementById('tenant-select');
 
         if (addBtn) addBtn.addEventListener('click', function () { openProjectForm(null); });
-        if (refreshBtn) {
-          refreshBtn.addEventListener('click', function () {
-            var p = getHashParams();
-            var t = p.get('id_token');
-            var c = parseJwt(t) || {};
-            setModeFromRoles(c.atlas_roles || []);
-            showStatus('Roles refreshed from the current token.');
-          });
-        }
+        if (refreshBtn) refreshBtn.addEventListener('click', function () { refreshFromCurrentToken(true); });
         if (cancelBtn) cancelBtn.addEventListener('click', closeProjectForm);
         if (backdrop) {
           backdrop.addEventListener('click', function (event) {
             if (event.target === backdrop) closeProjectForm();
           });
         }
+        if (tenantBackdrop) {
+          tenantBackdrop.addEventListener('click', function (event) {
+            if (event.target === tenantBackdrop) closeTenantSettings();
+          });
+        }
         document.addEventListener('keydown', function (event) {
           if (event.key === 'Escape' && document.getElementById('modal-backdrop').style.display === 'flex') {
             closeProjectForm();
           }
+          if (event.key === 'Escape' && document.getElementById('tenant-modal-backdrop').style.display === 'flex') {
+            closeTenantSettings();
+          }
         });
         if (form) form.addEventListener('submit', saveProject);
         if (tableBody) tableBody.addEventListener('click', handleProjectTableClick);
+        if (switchTenantBtn) switchTenantBtn.addEventListener('click', handleTenantSwitch);
+        if (tenantSettingsBtn) tenantSettingsBtn.addEventListener('click', openTenantSettings);
+        if (tenantCloseBtn) tenantCloseBtn.addEventListener('click', closeTenantSettings);
+        if (tenantDeleteBtn) tenantDeleteBtn.addEventListener('click', deleteTenantProfile);
+        if (tenantForm) tenantForm.addEventListener('submit', saveTenantProfile);
+        if (tenantSelect) {
+          tenantSelect.addEventListener('change', function () {
+            var key = tenantSelect.value;
+            if (!key || !state.tenantProfiles[key]) return;
+            state.activeTenantKey = key;
+            state.activeTenantConfig = state.tenantProfiles[key];
+            state.tenantSource = 'saved';
+            updateTenantSummary();
+          });
+        }
       }
 
-      function startLoginIfNeeded() {
-        var params = getHashParams();
-        var idToken = params.get('id_token');
-        if (idToken) return idToken;
-        var authUrl = new URL('https://openam-uki-wf.forgeblocks.com/am/oauth2/realms/root/realms/alpha/authorize');
-        authUrl.searchParams.set('client_id', 'AtlasWebApp');
-        authUrl.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
-        authUrl.searchParams.set('response_type', 'id_token');
-        authUrl.searchParams.set('scope', 'openid profile email atlas');
-        authUrl.searchParams.set('nonce', (window.crypto && crypto.randomUUID && crypto.randomUUID()) || String(Date.now()));
-        authUrl.searchParams.set('state', 'atlas_' + Date.now());
-        window.location.replace(authUrl.toString());
-        return null;
+      function initializeAuthentication() {
+        var queryTenant = getSearchParams().get('tenant');
+        var idToken = getHashParams().get('id_token');
+        var savedUiMode = safeLocalStorageGet(STORAGE_UI_MODE);
+
+        resolveTenantContext();
+
+        if (queryTenant && state.tenantSource === 'url') {
+          setTenantUiMode('compact');
+        } else if (idToken && savedUiMode === 'compact') {
+          setTenantUiMode('compact');
+        } else {
+          setTenantUiMode('full');
+        }
+
+        renderTenantOptions();
+
+        if (idToken) {
+          refreshFromCurrentToken(false);
+          return;
+        }
+
+        if (queryTenant) {
+          if (state.tenantSource === 'url' && state.activeTenantConfig) {
+            beginAuthorization(state.activeTenantConfig);
+            return;
+          }
+          setTenantUiMode('full');
+          showStatus('Unknown tenant key in URL. Choose a saved tenant profile or add one in Tenant settings.', 'warning');
+          return;
+        }
+
+        showStatus('Choose a tenant profile and click “Sign in / switch tenant”, or launch with ?tenant=profile-key.', 'warning');
       }
 
       bindEvents();
       renderProjects();
-      var idToken = startLoginIfNeeded();
-      if (!idToken) return;
-      var claims = parseJwt(idToken) || {};
-      setModeFromRoles(claims.atlas_roles || []);
+      initializeAuthentication();
     })();
   </script>
 
   <script>
-
     function prepareChartsForPrint() {
+      if (!window.echarts) return;
       document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
         var chart = echarts.getInstanceByDom(el);
         if (!chart) return;
