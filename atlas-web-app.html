@@ -405,6 +405,10 @@
         renderReadView();
         if (isEditor()) renderWriteList();
       }
+      function applyRolesFromToken(idToken) {
+        var claims = parseJwt(idToken) || {};
+        setModeFromRoles(claims.atlas_roles || []);
+      }
       function renderPatientList() {
         var list = document.getElementById('patient-list');
         var search = (document.getElementById('patient-search').value || '').trim().toLowerCase();
@@ -551,9 +555,7 @@
           state.selectedPatientRef = button.getAttribute('data-patient-ref'); renderReadView();
         });
         document.getElementById('btn-refresh').addEventListener('click', function () {
-          var token = getHashParams().get('id_token');
-          var claims = parseJwt(token) || {};
-          setModeFromRoles(claims.atlas_roles || []);
+          applyRolesFromToken(getHashParams().get('id_token'));
           showStatus('Role refreshed from the current token.');
         });
         document.getElementById('btn-save-record').addEventListener('click', saveRecord);
@@ -574,10 +576,7 @@
       renderReadView();
       renderWriteList();
       var idToken = startLoginIfNeeded();
-      if (idToken) {
-        var claims = parseJwt(idToken) || {};
-        setModeFromRoles(claims.atlas_roles || []);
-      }
+      if (idToken) applyRolesFromToken(idToken);
     })();
   </script>
   <script>
