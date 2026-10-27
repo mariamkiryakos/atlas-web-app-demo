@@ -576,7 +576,10 @@
       renderReadView();
       renderWriteList();
       var idToken = startLoginIfNeeded();
-      if (idToken) applyRolesFromToken(idToken);
+      if (idToken) {
+        applyRolesFromToken(idToken);
+        if (isEditor()) setActiveView('write');
+      }
     })();
   </script>
   <script>
